@@ -5,6 +5,7 @@
 **Weekly Commitment**: 10-20 hours
 
 ## Executive Summary
+
 This plan uses modern 2025 agile practices adapted for part-time development (10-20 hrs/week). It emphasizes **adaptive planning**, **iterative development**, and **milestone-based progress** rather than rigid timelines.
 
 ---
@@ -12,6 +13,7 @@ This plan uses modern 2025 agile practices adapted for part-time development (10
 ## 🎯 Development Philosophy for 2025
 
 ### Core Principles (Based on Current Best Practices)
+
 1. **Iterative Development**: Break projects into small, manageable sprints that deliver continuous value
 2. **Flexibility First**: Use agile methods to adjust priorities based on feedback and changing requirements
 3. **Lightweight Planning**: Do more frequent, lighter planning rather than heavy upfront planning
@@ -22,17 +24,18 @@ This plan uses modern 2025 agile practices adapted for part-time development (10
 ## 📊 Part-Time Sprint Framework
 
 ### Sprint Structure for 10-20 Hour Weeks
-```
+
 Sprint Duration: 2 weeks (flexible)
 Time Per Sprint: 20-40 hours total
 Daily Commitment: 1.5-3 hours average
 
 Week Pattern:
+
 - Mon-Fri: 2-3 hours evening work
 - Weekend: Optional 4-6 hour blocks
-```
 
 ### Sprint Planning Adaptation
+
 - **Sprint Planning**: 30 minutes (not 4 hours)
 - **Daily Standup**: Async via Slack/Discord
 - **Sprint Review**: 30 minutes
@@ -43,10 +46,12 @@ Week Pattern:
 ## 🗓️ Phase-Based Roadmap (6 Months)
 
 ### Phase 1: Foundation (August 2025)
+
 **Time Investment**: 60-80 hours total
 **Deadline Type**: Soft milestone
 
 #### Sprint 1 (August 1-14, 2025): Core Infrastructure
+
 ```yaml
 Goals:
   - Project setup & architecture
@@ -66,6 +71,7 @@ Time Allocation:
 ```
 
 #### Sprint 2 (August 15-28, 2025): User Experience
+
 ```yaml
 Goals:
   - User authentication with Firebase Auth
@@ -82,10 +88,12 @@ Flexibility Buffer: 20% time reserved
 ```
 
 ### Phase 2: MVP Launch (September - October 2025)
+
 **Time Investment**: 120-160 hours
 **Deadline Type**: Hard milestone
 
 #### Key Milestones with Flexible Deadlines
+
 ```markdown
 Must Have (Fixed):
 - [ ] 10 core conversions working
@@ -108,6 +116,7 @@ Nice to Have (Optional):
 ### Deadline Management Strategy
 
 #### Three-Tier Priority System
+
 1. **Critical Path Items** (Non-negotiable deadlines)
    - Core functionality
    - Security features
@@ -128,6 +137,7 @@ Nice to Have (Optional):
 ## 📈 Adaptive Planning Techniques
 
 ### Sprint Velocity Tracking
+
 ```javascript
 // Track your actual velocity to improve estimates
 const sprintMetrics = {
@@ -139,6 +149,7 @@ const sprintMetrics = {
 ```
 
 ### Weekly Time Boxing
+
 ```yaml
 Monday (2 hrs):
   - Code review & planning
@@ -172,6 +183,7 @@ Weekend (Optional 4-6 hrs):
 ### Milestone Types
 
 #### 1. Fixed Milestones (Date-driven)
+
 ```markdown
 - MVP Launch: October 31, 2025
 - Payment Live: November 15, 2025
@@ -179,6 +191,7 @@ Weekend (Optional 4-6 hrs):
 ```
 
 #### 2. Floating Milestones (Feature-driven)
+
 ```markdown
 - AI Integration: When core conversions stable
 - API Launch: After 100 active users
@@ -186,6 +199,7 @@ Weekend (Optional 4-6 hrs):
 ```
 
 #### 3. Buffer Milestones (Risk mitigation)
+
 ```markdown
 - Technical Debt Sprint: Every 6 weeks
 - Performance Optimization: Before major launches
@@ -197,6 +211,7 @@ Weekend (Optional 4-6 hrs):
 ## 🛠️ Development Workflow
 
 ### Daily Rhythm (Part-Time Optimized)
+
 ```typescript
 interface DailyWorkflow {
   startup: {
@@ -219,6 +234,7 @@ interface DailyWorkflow {
 ### Modern Development Practices
 
 #### 1. Continuous Integration
+
 ```yaml
 # GitHub Actions for automated testing
 name: CI Pipeline
@@ -238,6 +254,7 @@ jobs:
 ```
 
 #### 2. Feature Flags with Firebase Remote Config
+
 ```javascript
 // Use Firebase Remote Config for feature flags
 import { getRemoteConfig, getValue } from 'firebase/remote-config';
@@ -263,6 +280,7 @@ if (aiOcrEnabled && user.tier === 'pro') {
 ### Visual Progress Management
 
 #### Kanban Board Structure
+
 ```markdown
 | Backlog | This Sprint | In Progress | Testing | Done |
 |---------|-------------|-------------|---------|------|
@@ -272,6 +290,7 @@ if (aiOcrEnabled && user.tier === 'pro') {
 ```
 
 #### Weekly Health Metrics
+
 ```javascript
 const weeklyMetrics = {
   hoursWorked: 16,
@@ -289,6 +308,7 @@ const weeklyMetrics = {
 ### Common Risks & Mitigations
 
 #### 1. Burnout Risk
+
 ```yaml
 Signs:
   - Consistently working > 20 hrs/week
@@ -302,6 +322,7 @@ Mitigation:
 ```
 
 #### 2. Scope Creep
+
 ```yaml
 Prevention:
   - Document all features in backlog
@@ -315,6 +336,7 @@ Recovery:
 ```
 
 #### 3. Technical Debt
+
 ```yaml
 Management:
   - 20% time for refactoring
@@ -330,18 +352,21 @@ Management:
 ### Phase-Based Success Criteria
 
 #### Month 1-2 (Aug-Sep 2025): Technical Success
+
 - [ ] 5 conversion types working
 - [ ] < 2 second conversion time
 - [ ] 99% uptime
 - [ ] Automated deployment
 
 #### Month 3-4 (Oct-Nov 2025): Product Success
+
 - [ ] 100 sign-ups
 - [ ] 10 paying customers
 - [ ] 4.5+ star user feedback
 - [ ] < 24hr support response
 
 #### Month 5-6 (Dec 2025-Jan 2026): Business Success
+
 - [ ] $1,000 MRR
 - [ ] 50% month-over-month growth
 - [ ] Break-even on costs
@@ -352,6 +377,7 @@ Management:
 ## 🔧 Tool Stack for Part-Time Efficiency
 
 ### Development Tools
+
 ```yaml
 Code:
   - VS Code with Copilot (2x faster coding)
@@ -384,6 +410,7 @@ Automation:
 ## 📅 Sample 2-Week Sprint Plan
 
 ### Sprint 3: Payment Integration (Example)
+
 **Available Time**: 30 hours
 **Must Complete**: Payment flow
 **Nice to Have**: Subscription management
@@ -411,6 +438,7 @@ Week 2 (15 hours):
 ## 🚀 Launch Strategy for Part-Time Builders
 
 ### Soft Launch Approach (Starting November 2025)
+
 1. **Week 1-2**: Friends & family beta
 2. **Week 3-4**: ProductHunt coming soon
 3. **Week 5-6**: Twitter/LinkedIn launch
@@ -418,6 +446,7 @@ Week 2 (15 hours):
 5. **Week 9-10**: Paid acquisition test
 
 ### Continuous Improvement Loop
+
 ```markdown
 Every Sprint:
 1. Ship something visible
@@ -432,12 +461,14 @@ Every Sprint:
 ## 💡 Part-Time Developer Tips
 
 ### Energy Management
+
 - **Peak Hours**: Code during your best hours
 - **Batch Similar Tasks**: Reduce context switching
 - **Automate Everything**: CI/CD, testing, deployments
 - **Document as You Go**: Future you will thank you
 
 ### Momentum Maintenance
+
 - **Daily Commits**: Even 10 lines keep momentum
 - **Public Updates**: Tweet progress for accountability
 - **Visual Progress**: Update Kanban board daily
@@ -448,6 +479,7 @@ Every Sprint:
 ## 📈 Scaling Beyond Part-Time
 
 ### Transition Triggers
+
 - **Go Full-Time When**:
   - MRR > $5,000
   - 40+ hours/week demand
@@ -487,27 +519,33 @@ Every Sprint:
 ## 📋 Sprint Schedule Overview
 
 ### August 2025
+
 - **Sprint 1** (Aug 1-14): Foundation & Core Features
 - **Sprint 2** (Aug 15-28): User Experience & Auth
 
 ### September 2025
+
 - **Sprint 3** (Sep 1-14): Payment Integration with Stripe & Firebase
 - **Sprint 4** (Sep 15-28): AI Features v1 with Cloud Functions
 
 ### October 2025
+
 - **Sprint 5** (Oct 1-14): Firebase Functions API Development
 - **Sprint 6** (Oct 15-28): Performance & Polish
 - **MVP Launch**: October 31, 2025 on Firebase Hosting
 
 ### November 2025
+
 - **Sprint 7** (Nov 1-14): Marketing Launch
 - **Sprint 8** (Nov 15-28): User Feedback Integration
 
 ### December 2025
+
 - **Sprint 9** (Dec 1-14): Scale & Optimize
 - **Sprint 10** (Dec 15-28): Holiday Feature Push
 
 ### January 2026
+
 - **Sprint 11** (Jan 1-14): New Year Growth Push
 - **Sprint 12** (Jan 15-28): Enterprise Features
 
