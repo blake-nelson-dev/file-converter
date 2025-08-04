@@ -1,17 +1,31 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { AuthProvider } from './contexts/AuthContext'
 import Dashboard from './features/dashboard/pages/Dashboard'
 import About from './features/about/pages/About'
+import SignIn from './features/auth/pages/SignIn'
+import SignUp from './features/auth/pages/SignUp'
+import ResetPassword from './features/auth/pages/ResetPassword'
 import Header from './shared/components/Header'
+import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
   return (
-    <Router>
-      <Header />
-      <Routes>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/about" element={<About />} />
-      </Routes>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <Header />
+        <Routes>
+          <Route path="/signin" element={<SignIn />} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/" element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          } />
+        </Routes>
+      </Router>
+    </AuthProvider>
   )
 }
 
