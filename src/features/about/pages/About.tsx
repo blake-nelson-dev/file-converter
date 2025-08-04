@@ -1,6 +1,5 @@
 import React from 'react';
-import HeroSection from '../../../shared/components/HeroSection';
-import Button from '../../../shared/components/Button';
+import { HeroSection, Button } from '../../../shared/components';
 
 const About: React.FC = () => {
   return (

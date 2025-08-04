@@ -11,6 +11,7 @@ import {
 } from 'firebase/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../config/firebase.config';
+import { GlobalLoading } from '../shared/components';
 
 interface UserProfile {
   uid: string;
@@ -127,7 +128,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   return (
     <AuthContext.Provider value={value}>
-      {!loading && children}
+      {loading ? <GlobalLoading /> : children}
     </AuthContext.Provider>
   );
 };

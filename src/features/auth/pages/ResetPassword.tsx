@@ -2,10 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
 import AuthContainer from '../components/AuthContainer';
-import FormInput from '../../../shared/components/FormInput';
-import ErrorMessage from '../../../shared/components/ErrorMessage';
-import SuccessMessage from '../../../shared/components/SuccessMessage';
-import Button from '../../../shared/components/Button';
+import { FormInput, ErrorMessage, SuccessMessage, Button } from '../../../shared/components';
 import { getAuthErrorMessage } from '../utils/authErrors';
 
 const ResetPassword: React.FC = () => {

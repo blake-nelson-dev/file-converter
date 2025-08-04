@@ -1,5 +1,5 @@
 import React from 'react';
-import HeroSection from '../../../shared/components/HeroSection';
+import { HeroSection } from '../../../shared/components';
 import ConversionCard from '../components/ConversionCard';
 import DragDropSection from '../components/DragDropSection';
 

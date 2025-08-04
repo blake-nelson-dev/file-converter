@@ -2,9 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
 import AuthContainer from '../components/AuthContainer';
-import FormInput from '../../../shared/components/FormInput';
-import ErrorMessage from '../../../shared/components/ErrorMessage';
-import Button from '../../../shared/components/Button';
+import { FormInput, ErrorMessage, Button } from '../../../shared/components';
 import { getAuthErrorMessage } from '../utils/authErrors';
 
 const SignUp: React.FC = () => {
