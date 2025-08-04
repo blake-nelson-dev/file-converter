@@ -1,6 +1,7 @@
 import React from 'react';
 import HeroSection from '../../../shared/components/HeroSection';
 import ConversionCard from '../components/ConversionCard';
+import DragDropSection from '../components/DragDropSection';
 
 interface Category {
   id: string;
@@ -16,7 +17,7 @@ const Dashboard: React.FC = () => {
       title: 'Documents',
       description: 'Convert PDFs, Word docs, presentations, and more',
       icon: (
-        <svg className="w-12 h-12 mx-auto text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="w-12 h-12 mx-auto text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
         </svg>
       )
@@ -34,6 +35,8 @@ const Dashboard: React.FC = () => {
         title="Convert Files with Ease"
         subtitle="Fast, secure, and intelligent file conversion powered by AI"
       />
+      
+      <DragDropSection />
       
       <section className="px-4 py-8 sm:py-12">
         <div className="max-w-7xl mx-auto">
