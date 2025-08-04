@@ -1,4 +1,4 @@
-# AI-Enhanced File Converter
+# ConvertStudio
 
 A modern, professional file conversion platform built with React, TypeScript, and Firebase. Convert documents, images, and other files with AI-powered enhancements and seamless cloud processing.
 
