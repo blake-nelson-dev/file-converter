@@ -7,6 +7,7 @@ import SignUp from './features/auth/pages/SignUp'
 import ResetPassword from './features/auth/pages/ResetPassword'
 import Header from './shared/components/Header'
 import ProtectedRoute from './components/ProtectedRoute'
+import PublicRoute from './components/PublicRoute'
 
 function App() {
   return (
@@ -14,9 +15,21 @@ function App() {
       <Router>
         <Header />
         <Routes>
-          <Route path="/signin" element={<SignIn />} />
-          <Route path="/signup" element={<SignUp />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/signin" element={
+            <PublicRoute>
+              <SignIn />
+            </PublicRoute>
+          } />
+          <Route path="/signup" element={
+            <PublicRoute>
+              <SignUp />
+            </PublicRoute>
+          } />
+          <Route path="/reset-password" element={
+            <PublicRoute>
+              <ResetPassword />
+            </PublicRoute>
+          } />
           <Route path="/about" element={<About />} />
           <Route path="/" element={
             <ProtectedRoute>
