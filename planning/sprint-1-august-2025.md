@@ -28,16 +28,27 @@
 
 ## 📅 Week 1: August 4-10, 2025
 
-### Monday, August 4 (2 hours) - TODAY
+### Monday, August 4 (2 hours) - ✅ COMPLETED
 
 **Focus**: Firebase Functions Setup
 
-- [ ] Initialize Firebase Functions in project
-- [ ] Set up local Functions emulator
-- [ ] Create hello-world function
-- [ ] Configure TypeScript for Functions
+- [x] Initialize Firebase Functions in project
+- [x] Set up local Functions emulator  
+- [x] Create hello-world function
+- [x] Configure TypeScript for Functions
 
-**Deliverable**: Working Functions development environment
+**Deliverable**: ✅ Working Functions development environment
+
+**✨ BONUS Completed**:
+
+- [x] Fixed TypeScript config issues (erasableSyntaxOnly)
+- [x] Resolved all ESLint errors with professional solutions
+- [x] Updated Functions TypeScript target to ES2022
+- [x] Updated CLAUDE.md and README.md with Firebase setup
+- [x] Clean codebase with proper error handling
+
+**Time Spent**: ~2 hours  
+**Status**: Ahead of schedule
 
 ### Tuesday, August 5 (2 hours)
 
@@ -49,6 +60,34 @@
 - [ ] Add file metadata to Firestore
 
 **Deliverable**: Files uploading to Firebase Storage
+
+**📋 Tomorrow's Detailed Plan**:
+
+**Phase 1: Storage Integration (45 min)**
+
+1. Update Firebase Storage rules for authenticated users
+2. Create `src/services/storage.service.ts` with upload/download functions
+3. Test storage rules with Firebase emulators
+
+**Phase 2: Upload Implementation (45 min)**  
+4. Modify DragDropSection to actually upload files to Firebase Storage
+5. Add user choice: "Save files to account" vs "Temporary processing only"
+6. Add upload progress indicators
+7. Handle upload errors gracefully
+
+**Phase 3: Storage Logic & URLs (30 min)**
+8. Implement dual storage paths: `files/{userId}/` (permanent) vs `temp/{sessionId}/` (auto-delete)
+9. Create Firestore document only for saved files
+10. Generate secure download URLs for both storage types
+11. Test both storage options end-to-end
+
+**Prerequisites**:
+
+- Firebase emulators running (`firebase emulators:start`)
+- Review current drag-drop UI implementation
+- Check existing Firebase config in `src/config/firebase.config.ts`
+
+**🎯 Tomorrow's Summary**: Transform the existing drag-and-drop UI from a mockup into a fully functional file upload system with **user-controlled storage options**. Users can choose between saving files to their account permanently or using temporary processing-only storage that auto-deletes. This bridges the gap between UI and backend functionality while respecting user privacy preferences.
 
 ### Wednesday, August 6 (2 hours)
 
@@ -165,6 +204,46 @@
 **Deliverable**: Stable Sprint 1 release
 
 ## 📋 Technical Details
+
+### User-Controlled Storage Architecture
+
+**Storage Options UI**:
+
+```typescript
+interface StoragePreference {
+  saveToAccount: boolean; // true = permanent, false = temporary
+  autoDelete?: number;    // hours for temp files (default: 1)
+}
+```
+
+**Storage Paths**:
+
+```
+// Permanent storage (user chooses to save)
+files/
+  {userId}/
+    {fileId}/
+      original.pdf
+      converted.docx
+
+// Temporary storage (auto-delete)  
+temp/
+  {sessionId}/
+    {timestamp}-original.pdf    // Delete after 1 hour
+    {timestamp}-converted.docx  // Delete after 1 hour
+```
+
+**Auto-Cleanup Function**:
+
+```typescript
+export const cleanupTempFiles = functions.pubsub
+  .schedule('every 30 minutes')
+  .onRun(async () => {
+    // Delete temp files older than 1 hour
+    const cutoff = Date.now() - (60 * 60 * 1000);
+    // Cleanup logic...
+  });
+```
 
 ### Firebase Functions Setup
 

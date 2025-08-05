@@ -80,7 +80,7 @@ Goals:
   
 Deliverables:
   - Login/signup flow (Email + Google)
-  - Dashboard with file history from Firestore
+  - Dashboard with file history from Firestore (user-controlled: permanent vs temporary storage)
   - Image format conversions
   - Firebase Storage integration
   
@@ -385,9 +385,10 @@ Code:
   - Vercel for instant deploys
 
 Database & Backend:
-  - Firebase (Firestore, Auth, Storage)
+  - Firebase (Firestore, Auth, Storage with user-controlled retention)
   - Firebase Functions for processing
   - Firebase Hosting for web app
+  - Dual storage: permanent (user choice) vs temporary (auto-delete)
 
 Project Management:
   - Linear (lightweight, fast)
