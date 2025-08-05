@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { FirebaseError } from 'firebase/app';
 import { useAuth } from '../../../contexts/AuthContext';
 import AuthContainer from '../components/AuthContainer';
 import { FormInput, ErrorMessage, SuccessMessage, Button } from '../../../shared/components';
@@ -27,8 +28,8 @@ const ResetPassword: React.FC = () => {
       setLoading(true);
       await resetPassword(email);
       setMessage('Check your inbox for password reset instructions');
-    } catch (error: any) {
-      const errorMessage = getAuthErrorMessage(error.code, 'reset');
+    } catch (error) {
+      const errorMessage = getAuthErrorMessage((error as FirebaseError).code, 'reset');
       setError(errorMessage);
     } finally {
       setLoading(false);

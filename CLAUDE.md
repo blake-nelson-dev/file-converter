@@ -16,11 +16,30 @@ npm run preview    # Preview production build locally
 npm run lint       # Run ESLint
 ```
 
-### Firebase Deployment
+### Firebase Development & Deployment
 ```bash
-firebase deploy                # Deploy to Firebase Hosting
-firebase emulators:start       # Start local Firebase emulators
-firebase functions:deploy      # Deploy Cloud Functions
+# Local Development
+firebase emulators:start                          # Start all Firebase emulators
+firebase emulators:start --only functions,firestore  # Specific emulators
+
+# Functions Development
+cd functions && npm run build     # Build Functions TypeScript
+cd functions && npm run serve     # Serve Functions locally
+cd functions && npm run shell     # Functions interactive shell
+
+# Firebase Deployment
+firebase deploy --only functions  # Deploy Cloud Functions
+firebase deploy --only firestore:rules  # Deploy Firestore rules
+firebase deploy --only storage:rules     # Deploy Storage rules
+```
+
+### Frontend Deployment (Vercel)
+```bash
+# Vercel CLI (if installed)
+vercel                        # Deploy to Vercel
+vercel --prod                 # Deploy to production
+
+# Or connect GitHub repo to Vercel for automatic deployments
 ```
 
 ## Architecture
@@ -45,12 +64,14 @@ src/
 └── main.tsx         # Application entry point
 ```
 
-### Firebase Services Architecture
-- **Authentication**: Email/password and Google OAuth
-- **Firestore**: User data, conversion history, file metadata
-- **Storage**: File uploads and converted files
-- **Cloud Functions**: File conversion processing
-- **Hosting**: Static site deployment
+### Architecture Overview
+
+- **Frontend**: React SPA hosted on Vercel
+- **Backend**: Firebase Functions (serverless)
+- **Database**: Firestore for user data and file metadata
+- **Storage**: Firebase Storage for file uploads/downloads
+- **Authentication**: Firebase Auth (Email/Password + Google OAuth)
+- **File Processing**: Cloud Functions for conversion logic
 
 ### Key Implementation Patterns
 
@@ -92,9 +113,31 @@ The project follows a part-time agile development approach with 2-week sprints. 
 - Environment variables follow `VITE_FIREBASE_*` naming convention
 - Import Firebase services as needed in components (not globally initialized)
 
+## Firebase Configuration
+
+### Emulator Ports
+- **Auth**: 9099
+- **Functions**: 5001  
+- **Firestore**: 8080
+- **Storage**: 9199
+- **UI**: Enabled with single project mode
+
+### Services Initialized
+- ✅ **Firestore**: Database with rules and indexes
+- ✅ **Functions**: Node.js 22 with TypeScript
+- ✅ **Storage**: File storage with security rules
+- ✅ **Emulators**: Full local development suite
+
+### Deployment Architecture
+- **Frontend**: Vercel (automatic GitHub deployments)
+- **Backend**: Firebase Functions
+- **Database**: Firestore (nam5 region)
+- **Storage**: Firebase Storage
+
 ## Important Notes
 
 - No test framework is currently configured - tests should be added when needed
 - Project uses modern React 19 with concurrent features
 - The official app name is "ConvertStudio" - ensure consistency across all UI elements
 - The project is in early development (Phase 1) targeting an October 2025 MVP launch
+- Frontend hosted on Vercel, backend services on Firebase

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { FirebaseError } from 'firebase/app';
 import { useAuth } from '../../../contexts/AuthContext';
 import AuthContainer from '../components/AuthContainer';
 import { FormInput, ErrorMessage, Button } from '../../../shared/components';
@@ -48,8 +49,8 @@ const SignUp: React.FC = () => {
       setLoading(true);
       await signup(formData.email, formData.password, formData.displayName);
       navigate('/');
-    } catch (error: any) {
-      const errorMessage = getAuthErrorMessage(error.code, 'signup');
+    } catch (error) {
+      const errorMessage = getAuthErrorMessage((error as FirebaseError).code, 'signup');
       setError(errorMessage);
     } finally {
       setLoading(false);
@@ -62,8 +63,8 @@ const SignUp: React.FC = () => {
       setLoading(true);
       await loginWithGoogle();
       navigate('/');
-    } catch (error: any) {
-      const errorMessage = getAuthErrorMessage(error.code, 'signup');
+    } catch (error) {
+      const errorMessage = getAuthErrorMessage((error as FirebaseError).code, 'signup');
       setError(errorMessage);
     } finally {
       setLoading(false);
