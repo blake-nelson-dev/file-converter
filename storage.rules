@@ -13,24 +13,25 @@ service firebase.storage {
     }
     
     // TEMPORARY CONVERSION FILES
-    // Path structure: /temp/{userId}-{timestamp}/...
-    // Example: /temp/abc123-1699234567890/input.pdf
-    //          /temp/abc123-1699234567890/output.docx
+    // Path structure: /temp/{userId}-{uuid}/...
+    // Example: /temp/abc123-550e8400-e29b-41d4-a716-446655440000/input.pdf
+    //          /temp/abc123-550e8400-e29b-41d4-a716-446655440000/output.docx
     // 
     // Security explanation:
-    // - {userTimestampFolder} must start with the authenticated user's ID
-    // - Format enforced: "{userId}-{anything}"
+    // - {userSessionFolder} must start with the authenticated user's ID
+    // - Format enforced: "{userId}-{uuid v4}"
+    // - UUID v4 provides cryptographically secure randomness (unguessable)
     // - This prevents users from accessing other users' temporary files
     // - Files in these folders are auto-deleted after 1 hour by a scheduled Cloud Function
     //
     // Why this approach:
-    // - No database tracking needed (timestamp is in the folder name)
-    // - Easy batch deletion of old files
+    // - Secure: UUID v4 has 2^122 possible values (impossible to guess)
+    // - User isolation: Each user can only access their own folders
     // - Clear separation from permanent storage
     // - Users who don't want to save data can use temp-only conversion
-    match /temp/{userTimestampFolder}/{allPaths=**} {
+    match /temp/{userSessionFolder}/{allPaths=**} {
       allow read, write: if request.auth != null 
-        && userTimestampFolder.matches(request.auth.uid + '-.*');
+        && userSessionFolder.matches(request.auth.uid + '-[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}');
     }
     
     // DEFAULT DENY RULE

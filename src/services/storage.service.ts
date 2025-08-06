@@ -6,6 +6,7 @@ import {
 } from 'firebase/storage';
 import type { UploadTaskSnapshot } from 'firebase/storage';
 import { auth, storage } from '../config/firebase.config';
+import { v4 as uuidv4 } from 'uuid';
 
 export interface UploadOptions {
   saveToAccount: boolean;
@@ -25,7 +26,7 @@ class StorageService {
   private storage = storage;
 
   /**
-   * Generates a storage path based on user preference
+   * Generates a secure storage path using UUID
    * @param fileName - Original file name
    * @param saveToAccount - Whether to save permanently or temporarily
    * @returns Storage path
@@ -34,13 +35,16 @@ class StorageService {
     const user = auth.currentUser;
     if (!user) throw new Error('User must be authenticated to upload files');
 
+    // Generate secure UUID for this upload session
+    const sessionId = uuidv4();
+
     if (saveToAccount) {
-      // Permanent storage: /files/{userId}/{fileName}
-      return `files/${user.uid}/${Date.now()}-${fileName}`;
+      // Permanent storage: /files/{userId}/{uuid}-{fileName}
+      return `files/${user.uid}/${sessionId}-${fileName}`;
     } else {
-      // Temporary storage: /temp/{userId}-{timestamp}/{fileName}
-      const timestamp = Date.now();
-      return `temp/${user.uid}-${timestamp}/${fileName}`;
+      // Temporary storage: /temp/{userId}-{uuid}/{fileName}
+      // UUID makes the path unguessable while maintaining user isolation
+      return `temp/${user.uid}-${sessionId}/${fileName}`;
     }
   }
 
