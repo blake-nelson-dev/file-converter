@@ -113,14 +113,17 @@
 
 ### Wednesday, August 6 (2 hours)
 
-**Focus**: Conversion Function Development
+**Focus**: Conversion Function Development & Critical Security
 
 - [ ] Research PDF to DOCX conversion libraries
 - [ ] Create conversion Cloud Function
 - [ ] Set up Storage trigger for uploads
 - [ ] Handle basic file processing
+- [x] **CRITICAL**: Fix Firestore security rules - COMPLETED
+- [ ] Add file type validation and sanitization (prevent malicious uploads)
+- [ ] Create .env configuration with proper environment validation
 
-**Deliverable**: Basic conversion function structure
+**Deliverable**: Basic conversion function structure + Critical security fixes
 
 ### Thursday, August 7 (2 hours)
 
@@ -135,14 +138,16 @@
 
 ### Friday, August 8 (1-2 hours)
 
-**Focus**: UI Integration
+**Focus**: UI Integration & Testing Foundation
 
 - [ ] Show conversion status in UI
 - [ ] Add download button for completed files
 - [ ] Display errors to users
 - [ ] Test end-to-end flow
+- [ ] Set up basic testing framework (Jest/Vitest + React Testing Library)
+- [ ] Add critical unit tests for upload/conversion flows
 
-**Deliverable**: Complete conversion flow
+**Deliverable**: Complete conversion flow + Testing foundation
 
 ### Weekend, August 9-10 (Optional 4-6 hours)
 
@@ -175,25 +180,29 @@
 
 ### Tuesday, August 12 (2 hours)
 
-**Focus**: Additional Conversion Types
+**Focus**: Additional Conversion Types & Accessibility
 
 - [ ] Add DOCX to PDF conversion
 - [ ] Implement image conversions (JPG↔PNG)
 - [ ] Update UI for multiple formats
 - [ ] Test all conversion types
+- [ ] Add ARIA labels and screen reader support
+- [ ] Implement keyboard navigation for drag-drop and menus
 
-**Deliverable**: 3-5 working conversions
+**Deliverable**: 3-5 working conversions + Basic accessibility
 
 ### Wednesday, August 13 (2 hours)
 
-**Focus**: File Management
+**Focus**: File Management & Mobile UX
 
 - [ ] Create file history page
 - [ ] Add delete functionality
 - [ ] Implement file expiration
 - [ ] Show storage usage
+- [ ] Optimize mobile file upload UX (touch-friendly, camera integration)
+- [ ] Add mobile-responsive design improvements
 
-**Deliverable**: File management features
+**Deliverable**: File management features + Mobile optimization
 
 ### Thursday, August 14 (2 hours)
 
@@ -211,14 +220,16 @@
 
 ### Friday, August 15 (1-2 hours)
 
-**Focus**: Testing & Documentation
+**Focus**: Testing & Error Tracking
 
 - [ ] Test all features thoroughly
 - [ ] Update README
 - [ ] Document API structure
 - [ ] Create user guide
+- [ ] Implement error tracking (Sentry or similar)
+- [ ] Add comprehensive error handling with user-friendly messages
 
-**Deliverable**: Well-documented system
+**Deliverable**: Well-documented system + Production monitoring
 
 ### Weekend, August 16-17 (Optional 4-6 hours)
 
@@ -358,7 +369,18 @@ users/
 - ✅ **Enterprise-ready features** - Soft delete, audit trails, access controls
 - ✅ **Superior UX** - Real-time progress, completed files tracking, error recovery
 
-## 🚨 Potential Blockers & Solutions
+## 🚨 Critical Issues Identified & Added to Sprint
+
+### Security Vulnerabilities (ADDRESSED)
+1. ✅ **Firestore Security Rules** - Fixed dangerous wildcard rule that allowed any user to access all data
+2. ⚠️ **File Upload Validation** - Need file type/content validation (Added to Wed Aug 6)
+3. ⚠️ **Environment Configuration** - Missing proper .env setup (Added to Wed Aug 6)
+
+### Missing Core Features (ADDED TO SPRINT)
+4. ⚠️ **Testing Infrastructure** - Zero tests currently exist (Added to Fri Aug 8)
+5. ⚠️ **Accessibility** - No ARIA labels or keyboard support (Added to Tue Aug 12)
+6. ⚠️ **Mobile UX** - Drag-drop not mobile-optimized (Added to Wed Aug 13)
+7. ⚠️ **Error Monitoring** - No production error tracking (Added to Fri Aug 15)
 
 ### Technical Challenges
 
@@ -373,6 +395,10 @@ users/
 3. **Function cold starts**
    - Solution: Keep functions warm
    - Future: Optimize bundle size
+
+4. **Upload Cancellation** - Added proper Firebase task cancellation
+5. **File Validation** - Added malicious file prevention
+6. **Production Readiness** - Added error tracking and comprehensive testing
 
 ### Time Management
 
