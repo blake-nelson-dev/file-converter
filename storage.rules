@@ -1,10 +1,41 @@
 rules_version = '2';
 
-// Craft rules based on data in your Firestore database
-// allow write: if firestore.get(
-//    /databases/(default)/documents/users/$(request.auth.uid)).data.isAdmin;
 service firebase.storage {
   match /b/{bucket}/o {
+    // PERMANENT USER FILES
+    // Path structure: /files/{userId}/...
+    // Example: /files/abc123/documents/resume.pdf
+    // - Only the file owner can read/write their files
+    // - Files persist indefinitely until user deletes them
+    // - Each file should have a corresponding Firestore document with metadata
+    match /files/{userId}/{allPaths=**} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // TEMPORARY CONVERSION FILES
+    // Path structure: /temp/{userId}-{timestamp}/...
+    // Example: /temp/abc123-1699234567890/input.pdf
+    //          /temp/abc123-1699234567890/output.docx
+    // 
+    // Security explanation:
+    // - {userTimestampFolder} must start with the authenticated user's ID
+    // - Format enforced: "{userId}-{anything}"
+    // - This prevents users from accessing other users' temporary files
+    // - Files in these folders are auto-deleted after 1 hour by a scheduled Cloud Function
+    //
+    // Why this approach:
+    // - No database tracking needed (timestamp is in the folder name)
+    // - Easy batch deletion of old files
+    // - Clear separation from permanent storage
+    // - Users who don't want to save data can use temp-only conversion
+    match /temp/{userTimestampFolder}/{allPaths=**} {
+      allow read, write: if request.auth != null 
+        && userTimestampFolder.matches(request.auth.uid + '-.*');
+    }
+    
+    // DEFAULT DENY RULE
+    // Any path not explicitly matched above is denied access
+    // This is a security best practice - fail closed, not open
     match /{allPaths=**} {
       allow read, write: if false;
     }

@@ -1,8 +1,105 @@
 import React, { useState, useCallback } from 'react';
+import { storageService } from '../../../services';
+import type { FileUploadResult } from '../../../services';
+import { useAuth } from '../../../contexts/AuthContext';
+
+interface FileUploadState {
+  file: File;
+  progress: number;
+  status: 'pending' | 'uploading' | 'completed' | 'error';
+  result?: FileUploadResult;
+  error?: string;
+}
+
+// Internal Components
+const StorageToggle: React.FC<{
+  saveToAccount: boolean;
+  onToggle: (value: boolean) => void;
+}> = ({ saveToAccount, onToggle }) => (
+  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+    <div>
+      <h4 className="text-sm font-medium text-gray-900">Storage Preference</h4>
+      <p className="text-xs text-gray-500 mt-1">
+        {saveToAccount 
+          ? 'Files will be saved to your account permanently' 
+          : 'Files will be deleted after conversion (1 hour)'}
+      </p>
+    </div>
+    <button
+      onClick={() => onToggle(!saveToAccount)}
+      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+        saveToAccount ? 'bg-blue-600' : 'bg-gray-200'
+      }`}
+      aria-label="Toggle storage preference"
+    >
+      <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+        saveToAccount ? 'translate-x-6' : 'translate-x-1'
+      }`} />
+    </button>
+  </div>
+);
+
+const FileUploadProgress: React.FC<{
+  uploadStates: FileUploadState[];
+  isUploading: boolean;
+  onClear: () => void;
+}> = ({ uploadStates, isUploading, onClear }) => (
+  <div className="mt-6">
+    <h4 className="text-sm font-medium text-gray-700 mb-3">Upload Progress:</h4>
+    <ul className="space-y-3">
+      {uploadStates.map((state, index) => (
+        <li key={index} className="bg-gray-50 rounded-lg p-4">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm text-gray-700">{state.file.name}</span>
+            <span className="text-xs text-gray-500">
+              {state.status === 'completed' && '✓ Uploaded'}
+              {state.status === 'uploading' && `${state.progress.toFixed(0)}%`}
+              {state.status === 'error' && '✗ Failed'}
+              {state.status === 'pending' && 'Waiting...'}
+            </span>
+          </div>
+          {state.status === 'uploading' && (
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div 
+                className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                style={{ width: `${state.progress}%` }}
+              />
+            </div>
+          )}
+          {state.error && (
+            <p className="text-xs text-red-600 mt-1">{state.error}</p>
+          )}
+          {state.result && (
+            <a 
+              href={state.result.downloadURL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-blue-600 hover:underline mt-1 inline-block"
+            >
+              View uploaded file
+            </a>
+          )}
+        </li>
+      ))}
+    </ul>
+    {!isUploading && (
+      <button
+        onClick={onClear}
+        className="mt-4 w-full px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+      >
+        Upload More Files
+      </button>
+    )}
+  </div>
+);
 
 const DragDropSection: React.FC = () => {
+  const { currentUser } = useAuth();
   const [isDragging, setIsDragging] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
+  const [saveToAccount, setSaveToAccount] = useState(true);
+  const [uploadStates, setUploadStates] = useState<FileUploadState[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -22,17 +119,76 @@ const DragDropSection: React.FC = () => {
     setIsDragging(false);
 
     const droppedFiles = Array.from(e.dataTransfer.files);
-    setFiles(droppedFiles);
-    console.log('Files dropped:', droppedFiles);
+    setFiles(prev => [...prev, ...droppedFiles]);
   }, []);
 
   const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const selectedFiles = Array.from(e.target.files);
-      setFiles(selectedFiles);
-      console.log('Files selected:', selectedFiles);
+      setFiles(prev => [...prev, ...selectedFiles]);
     }
   }, []);
+
+  const uploadFiles = async () => {
+    if (!currentUser) {
+      alert('Please sign in to upload files');
+      return;
+    }
+
+    setIsUploading(true);
+    const newUploadStates: FileUploadState[] = files.map(file => ({
+      file,
+      progress: 0,
+      status: 'pending' as const
+    }));
+    setUploadStates(newUploadStates);
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      
+      setUploadStates(prev => prev.map((state, index) => 
+        index === i ? { ...state, status: 'uploading' as const } : state
+      ));
+
+      try {
+        const result = await storageService.uploadFile(file, {
+          saveToAccount,
+          onProgress: (progress) => {
+            setUploadStates(prev => prev.map((state, index) => 
+              index === i ? { ...state, progress } : state
+            ));
+          },
+          onError: (error) => {
+            setUploadStates(prev => prev.map((state, index) => 
+              index === i ? { 
+                ...state, 
+                status: 'error' as const, 
+                error: error.message 
+              } : state
+            ));
+          }
+        });
+
+        setUploadStates(prev => prev.map((state, index) => 
+          index === i ? { 
+            ...state, 
+            status: 'completed' as const, 
+            progress: 100,
+            result 
+          } : state
+        ));
+      } catch (error) {
+        console.error('Upload error:', error);
+      }
+    }
+
+    setIsUploading(false);
+  };
+
+  const clearFiles = () => {
+    setFiles([]);
+    setUploadStates([]);
+  };
 
   return (
     <section className="px-4 py-6 sm:py-8">
@@ -86,38 +242,69 @@ const DragDropSection: React.FC = () => {
           </p>
         </div>
 
-        {files.length > 0 && (
-          <div className="mt-6">
-            <h4 className="text-sm font-medium text-gray-700 mb-3">Selected files:</h4>
-            <ul className="space-y-2">
-              {files.map((file, index) => (
-                <li
-                  key={index}
-                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-                >
-                  <div className="flex items-center space-x-3">
-                    <svg
-                      className="w-5 h-5 text-gray-400"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                      />
-                    </svg>
-                    <span className="text-sm text-gray-700">{file.name}</span>
-                  </div>
-                  <span className="text-xs text-gray-500">
-                    {(file.size / 1024 / 1024).toFixed(2)} MB
-                  </span>
-                </li>
-              ))}
-            </ul>
+        {files.length > 0 && !uploadStates.length && (
+          <div className="mt-6 space-y-4">
+            <StorageToggle 
+              saveToAccount={saveToAccount} 
+              onToggle={setSaveToAccount} 
+            />
+
+            <div>
+              <h4 className="text-sm font-medium text-gray-700 mb-3">Selected files:</h4>
+              <ul className="space-y-2">
+                {files.map((file, index) => (
+                  <li
+                    key={index}
+                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <svg
+                        className="w-5 h-5 text-gray-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                        />
+                      </svg>
+                      <span className="text-sm text-gray-700">{file.name}</span>
+                    </div>
+                    <span className="text-xs text-gray-500">
+                      {(file.size / 1024 / 1024).toFixed(2)} MB
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={uploadFiles}
+                disabled={!currentUser}
+                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+              >
+                {currentUser ? 'Upload Files' : 'Sign in to Upload'}
+              </button>
+              <button
+                onClick={clearFiles}
+                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                Clear
+              </button>
+            </div>
           </div>
+        )}
+
+        {uploadStates.length > 0 && (
+          <FileUploadProgress 
+            uploadStates={uploadStates}
+            isUploading={isUploading}
+            onClear={clearFiles}
+          />
         )}
       </div>
     </section>

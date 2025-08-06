@@ -54,8 +54,8 @@
 
 **Focus**: File Upload Integration
 
-- [ ] Complete Firebase Storage integration
-- [ ] Fix file upload to actually save to Storage
+- [x] Complete Firebase Storage integration
+- [x] Fix file upload to actually save to Storage
 - [ ] Generate secure download URLs
 - [ ] Add file metadata to Firestore
 
