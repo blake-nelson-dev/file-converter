@@ -12,26 +12,26 @@ service firebase.storage {
       allow read, write: if request.auth != null && request.auth.uid == userId;
     }
     
-    // TEMPORARY CONVERSION FILES
-    // Path structure: /temp/{userId}-{uuid}/...
-    // Example: /temp/abc123-550e8400-e29b-41d4-a716-446655440000/input.pdf
-    //          /temp/abc123-550e8400-e29b-41d4-a716-446655440000/output.docx
+    // TEMPORARY CONVERSION FILES (ANONYMOUS)
+    // Path structure: /temp/{uuid}/...
+    // Example: /temp/550e8400-e29b-41d4-a716-446655440000/input.pdf
+    //          /temp/550e8400-e29b-41d4-a716-446655440000/output.docx
     // 
-    // Security explanation:
-    // - {userSessionFolder} must start with the authenticated user's ID
-    // - Format enforced: "{userId}-{uuid v4}"
+    // Security & Privacy:
+    // - Fully anonymous - no user ID in path
+    // - Only requirement: user must be authenticated
     // - UUID v4 provides cryptographically secure randomness (unguessable)
-    // - This prevents users from accessing other users' temporary files
-    // - Files in these folders are auto-deleted after 1 hour by a scheduled Cloud Function
+    // - No tracking of who uploaded what
+    // - Files are auto-deleted after 1 hour by a scheduled Cloud Function
     //
     // Why this approach:
+    // - Maximum privacy: No user association with temporary files
     // - Secure: UUID v4 has 2^122 possible values (impossible to guess)
-    // - User isolation: Each user can only access their own folders
-    // - Clear separation from permanent storage
-    // - Users who don't want to save data can use temp-only conversion
-    match /temp/{userSessionFolder}/{allPaths=**} {
+    // - GDPR/CCPA friendly: No personal data stored
+    // - Perfect for users who want anonymous file conversion
+    match /temp/{uuidFolder}/{allPaths=**} {
       allow read, write: if request.auth != null 
-        && userSessionFolder.matches(request.auth.uid + '-[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}');
+        && uuidFolder.matches('[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}');
     }
     
     // DEFAULT DENY RULE

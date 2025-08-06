@@ -7,6 +7,7 @@ import {
 import type { UploadTaskSnapshot } from 'firebase/storage';
 import { auth, storage } from '../config/firebase.config';
 import { v4 as uuidv4 } from 'uuid';
+import { firestoreService } from './firestore.service';
 
 export interface UploadOptions {
   saveToAccount: boolean;
@@ -29,22 +30,34 @@ class StorageService {
    * Generates a secure storage path using UUID
    * @param fileName - Original file name
    * @param saveToAccount - Whether to save permanently or temporarily
-   * @returns Storage path
+   * @returns Object with storage path and uuid
    */
-  private generateStoragePath(fileName: string, saveToAccount: boolean): string {
+  private generateStoragePath(fileName: string, saveToAccount: boolean): { path: string; uuid: string } {
     const user = auth.currentUser;
     if (!user) throw new Error('User must be authenticated to upload files');
 
-    // Generate secure UUID for this upload session
-    const sessionId = uuidv4();
+    // Generate secure UUID for this upload
+    const uuid = uuidv4();
 
     if (saveToAccount) {
       // Permanent storage: /files/{userId}/{uuid}-{fileName}
-      return `files/${user.uid}/${sessionId}-${fileName}`;
+      return {
+        path: `files/${user.uid}/${uuid}-${fileName}`,
+        uuid
+      };
     } else {
-      // Temporary storage: /temp/{userId}-{uuid}/{fileName}
-      // UUID makes the path unguessable while maintaining user isolation
-      return `temp/${user.uid}-${sessionId}/${fileName}`;
+      // Temporary storage: /temp/{uuid}/{anonymizedFileName}
+      // Fully anonymous - no user ID included
+      // Anonymize filename but keep extension for processing
+      const fileExtension = fileName.includes('.') 
+        ? fileName.substring(fileName.lastIndexOf('.')) 
+        : '';
+      const anonymizedFileName = `file${fileExtension}`;
+      
+      return {
+        path: `temp/${uuid}/${anonymizedFileName}`,
+        uuid
+      };
     }
   }
 
@@ -59,7 +72,7 @@ class StorageService {
     options: UploadOptions
   ): Promise<FileUploadResult> {
     try {
-      const storagePath = this.generateStoragePath(file.name, options.saveToAccount);
+      const { path: storagePath, uuid } = this.generateStoragePath(file.name, options.saveToAccount);
       const storageRef = ref(this.storage, storagePath);
       
       // Create upload task
@@ -94,6 +107,23 @@ class StorageService {
                 fileName: file.name,
                 fileSize: file.size
               };
+
+              // Create Firestore document if saving to account
+              if (options.saveToAccount && auth.currentUser) {
+                try {
+                  await firestoreService.createFileDocument(auth.currentUser.uid, {
+                    fileName: file.name,
+                    fileSize: file.size,
+                    fileType: file.type || 'unknown',
+                    storagePath,
+                    downloadURL,
+                    uuid
+                  });
+                } catch (firestoreError) {
+                  console.error('Failed to create Firestore document:', firestoreError);
+                  // Continue even if Firestore fails - file is already uploaded
+                }
+              }
 
               if (options.onComplete) {
                 options.onComplete(downloadURL);

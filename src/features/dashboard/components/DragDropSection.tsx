@@ -27,8 +27,8 @@ const StorageToggle: React.FC<{
       <h4 className="text-sm font-medium text-gray-900">Storage Preference</h4>
       <p className="text-xs text-gray-500 mt-1">
         {saveToAccount 
-          ? 'Files will be saved to your account permanently' 
-          : 'Files will be deleted after conversion (1 hour)'}
+          ? '📁 Files saved to your account with full history tracking' 
+          : '🔒 Anonymous processing - no tracking, auto-deleted after 1 hour'}
       </p>
     </div>
     <button
