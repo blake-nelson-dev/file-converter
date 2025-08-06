@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { storageService } from '../../../services';
+import { storageService, firestoreService } from '../../../services';
 import type { FileUploadResult } from '../../../services';
 import { useAuth } from '../../../contexts/AuthContext';
 

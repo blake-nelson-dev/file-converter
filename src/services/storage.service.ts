@@ -116,8 +116,8 @@ class StorageService {
                     fileSize: file.size,
                     fileType: file.type || 'unknown',
                     storagePath,
-                    downloadURL,
                     uuid
+                    // downloadURL removed - will be generated on demand
                   });
                 } catch (firestoreError) {
                   console.error('Failed to create Firestore document:', firestoreError);

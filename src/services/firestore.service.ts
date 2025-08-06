@@ -4,6 +4,7 @@ import {
   setDoc, 
   addDoc, 
   getDocs, 
+  getDoc,
   query, 
   where, 
   orderBy, 
@@ -12,14 +13,14 @@ import {
   deleteDoc
 } from 'firebase/firestore';
 import type { Timestamp } from 'firebase/firestore';
-import { db } from '../config/firebase.config';
+import { db, storage } from '../config/firebase.config';
+import { ref, getDownloadURL } from 'firebase/storage';
 
 export interface FileMetadata {
   fileName: string;
   fileSize: number;
   fileType: string;
   storagePath: string;
-  downloadURL: string;
   uploadedAt: Timestamp | Date;
   uuid: string;
   status: 'active' | 'deleted';
@@ -107,6 +108,56 @@ class FirestoreService {
       await deleteDoc(fileDoc);
     } catch (error) {
       console.error('Error hard deleting file:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Gets a secure download URL for a file on demand
+   * @param userId - User ID
+   * @param fileId - File document ID
+   * @returns Download URL
+   */
+  async getFileDownloadUrl(userId: string, fileId: string): Promise<string> {
+    try {
+      // Get file metadata from Firestore
+      const fileDoc = doc(db, 'users', userId, 'files', fileId);
+      const fileSnapshot = await getDoc(fileDoc);
+      
+      if (!fileSnapshot.exists()) {
+        throw new Error('File not found');
+      }
+
+      const fileData = fileSnapshot.data() as FileMetadata;
+      
+      // Check if file is active
+      if (fileData.status !== 'active') {
+        throw new Error('File has been deleted');
+      }
+
+      // Generate fresh download URL from storage path
+      const storageRef = ref(storage, fileData.storagePath);
+      const downloadURL = await getDownloadURL(storageRef);
+      
+      return downloadURL;
+    } catch (error) {
+      console.error('Error generating download URL:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Gets a secure download URL directly from storage path
+   * Use this for temporary files that don't have Firestore records
+   * @param storagePath - Path to file in storage
+   * @returns Download URL
+   */
+  async getDownloadUrlFromPath(storagePath: string): Promise<string> {
+    try {
+      const storageRef = ref(storage, storagePath);
+      return await getDownloadURL(storageRef);
+    } catch (error) {
+      console.error('Error generating download URL from path:', error);
       throw error;
     }
   }
