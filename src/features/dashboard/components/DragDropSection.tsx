@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { storageService, firestoreService } from '../../../services';
+import { storageService } from '../../../services';
 import type { FileUploadResult } from '../../../services';
 import { useAuth } from '../../../contexts/AuthContext';
 
@@ -78,18 +78,45 @@ const FileUploadProgress: React.FC<{
   isUploading: boolean;
   onClear: () => void;
 }> = ({ uploadStates, isUploading, onClear }) => (
-  <div className="mt-6">
-    <h4 className="text-sm font-medium text-gray-700 mb-3">Upload Progress:</h4>
+  <div className={`mt-6 transition-opacity duration-200 ${isUploading ? 'opacity-90' : 'opacity-100'}`}>
+    <div className="flex items-center justify-between mb-3">
+      <h4 className="text-sm font-medium text-gray-700">
+        Upload Progress: {isUploading ? (
+          <span className="text-blue-600">Uploading...</span>
+        ) : (
+          <span className="text-green-600">Complete</span>
+        )}
+      </h4>
+      {isUploading && (
+        <button
+          onClick={onClear}
+          className="text-xs text-red-600 hover:text-red-800 hover:underline transition-colors"
+          title="Cancel uploads"
+        >
+          Cancel
+        </button>
+      )}
+    </div>
     <ul className="space-y-3">
       {uploadStates.map((state, index) => (
-        <li key={index} className="bg-gray-50 rounded-lg p-4">
+        <li key={index} className={`bg-gray-50 rounded-lg p-4 transition-all duration-200 ${
+          isUploading && state.status === 'uploading' ? 'ring-2 ring-blue-200' : ''
+        }`}>
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm text-gray-700">{state.file.name}</span>
             <span className="text-xs text-gray-500">
-              {state.status === 'completed' && '✓ Uploaded'}
-              {state.status === 'uploading' && `${state.progress.toFixed(0)}%`}
-              {state.status === 'error' && '✗ Failed'}
-              {state.status === 'pending' && 'Waiting...'}
+              {state.status === 'completed' && (
+                <span className="text-green-600 font-medium">✓ Uploaded</span>
+              )}
+              {state.status === 'uploading' && (
+                <span className="text-blue-600 font-medium">{state.progress.toFixed(0)}%</span>
+              )}
+              {state.status === 'error' && (
+                <span className="text-red-600 font-medium">✗ Failed</span>
+              )}
+              {state.status === 'pending' && (
+                <span className="text-gray-500">Waiting...</span>
+              )}
             </span>
           </div>
           {state.status === 'uploading' && (

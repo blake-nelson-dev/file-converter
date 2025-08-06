@@ -166,6 +166,10 @@
 - [ ] Implement file preview
 - [ ] Create conversion options UI
 - [ ] Add cancel conversion feature
+- [ ] Fix upload cancellation - currently only clears UI, doesn't cancel Firebase uploads
+- [ ] Add proper upload task cancellation with Firebase SDK
+- [ ] Add upload confirmation dialog before canceling
+- [ ] Implement retry mechanism for failed uploads
 
 **Deliverable**: Enhanced user experience
 
@@ -199,6 +203,9 @@
 - [ ] Implement file size limits
 - [ ] Add virus scanning setup
 - [ ] Optimize conversion speed
+- [ ] Add upload task cleanup and memory management
+- [ ] Implement concurrent upload limits
+- [ ] Add upload timeout handling
 
 **Deliverable**: Secure, performant system
 
@@ -222,6 +229,8 @@
 - [ ] Prepare for next sprint
 - [ ] Plan payment integration
 - [ ] Deploy final sprint version
+- [ ] Improve error state UX with actionable recovery options
+- [ ] Add session persistence for completed files (optional)
 
 **Deliverable**: Stable Sprint 1 release
 
