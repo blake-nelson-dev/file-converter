@@ -11,6 +11,12 @@ interface FileUploadState {
   error?: string;
 }
 
+interface CompletedFile {
+  fileName: string;
+  downloadURL: string;
+  uploadedAt: Date;
+}
+
 // Internal Components
 const StorageToggle: React.FC<{
   saveToAccount: boolean;
@@ -36,6 +42,34 @@ const StorageToggle: React.FC<{
         saveToAccount ? 'translate-x-6' : 'translate-x-1'
       }`} />
     </button>
+  </div>
+);
+
+const CompletedFiles: React.FC<{
+  completedFiles: CompletedFile[];
+}> = ({ completedFiles }) => (
+  <div className="mt-6 p-4 bg-green-50 rounded-lg">
+    <h4 className="text-sm font-medium text-green-900 mb-3">Completed Uploads ({completedFiles.length})</h4>
+    <ul className="space-y-2">
+      {completedFiles.map((file, index) => (
+        <li key={index} className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+            <span className="text-sm text-gray-700">{file.fileName}</span>
+          </div>
+          <a 
+            href={file.downloadURL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs text-blue-600 hover:underline"
+          >
+            View file
+          </a>
+        </li>
+      ))}
+    </ul>
   </div>
 );
 
@@ -82,14 +116,6 @@ const FileUploadProgress: React.FC<{
         </li>
       ))}
     </ul>
-    {!isUploading && (
-      <button
-        onClick={onClear}
-        className="mt-4 w-full px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-      >
-        Upload More Files
-      </button>
-    )}
   </div>
 );
 
@@ -100,6 +126,7 @@ const DragDropSection: React.FC = () => {
   const [saveToAccount, setSaveToAccount] = useState(true);
   const [uploadStates, setUploadStates] = useState<FileUploadState[]>([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [completedFiles, setCompletedFiles] = useState<CompletedFile[]>([]);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -126,6 +153,8 @@ const DragDropSection: React.FC = () => {
     if (e.target.files) {
       const selectedFiles = Array.from(e.target.files);
       setFiles(prev => [...prev, ...selectedFiles]);
+      // Reset the input value so the same file can be selected again
+      e.target.value = '';
     }
   }, []);
 
@@ -136,6 +165,9 @@ const DragDropSection: React.FC = () => {
     }
 
     setIsUploading(true);
+    // Clear upload states when starting new upload (this hides completed files)
+    setUploadStates([]);
+    
     const newUploadStates: FileUploadState[] = files.map(file => ({
       file,
       progress: 0,
@@ -177,12 +209,23 @@ const DragDropSection: React.FC = () => {
             result 
           } : state
         ));
+
+        // Add to completed files
+        setCompletedFiles(prev => [...prev, {
+          fileName: file.name,
+          downloadURL: result.downloadURL,
+          uploadedAt: new Date()
+        }]);
       } catch (error) {
         console.error('Upload error:', error);
       }
     }
 
     setIsUploading(false);
+    // Clear the files array after upload completes so drag-drop works again
+    setFiles([]);
+    // Immediately show completed files
+    setUploadStates([]);
   };
 
   const clearFiles = () => {
@@ -305,6 +348,10 @@ const DragDropSection: React.FC = () => {
             isUploading={isUploading}
             onClear={clearFiles}
           />
+        )}
+
+        {completedFiles.length > 0 && uploadStates.length === 0 && (
+          <CompletedFiles completedFiles={completedFiles} />
         )}
       </div>
     </section>
