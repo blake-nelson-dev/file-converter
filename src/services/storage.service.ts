@@ -8,6 +8,7 @@ import type { UploadTaskSnapshot } from 'firebase/storage';
 import { auth, storage } from '../config/firebase.config';
 import { v4 as uuidv4 } from 'uuid';
 import { firestoreService } from './firestore.service';
+import { env } from '../config/env.validation';
 
 export interface UploadOptions {
   saveToAccount: boolean;
@@ -27,7 +28,7 @@ class StorageService {
   private storage = storage;
 
   /**
-   * Generates a secure storage path using UUID
+   * Generates a secure storage path using UUID with organized directory structure
    * @param fileName - Original file name
    * @param saveToAccount - Whether to save permanently or temporarily
    * @returns Object with storage path and uuid
@@ -36,29 +37,53 @@ class StorageService {
     const user = auth.currentUser;
     if (!user) throw new Error('User must be authenticated to upload files');
 
-    // Generate secure UUID for this upload
+    // Generate secure UUID and timestamp for this upload
     const uuid = uuidv4();
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const timestamp = Math.floor(now.getTime() / 1000); // Unix timestamp for uniqueness
+
+    // Extract file extension to determine conversion type
+    const fileExtension = fileName.split('.').pop()?.toLowerCase() || '';
+    const conversionType = this.getConversionType(fileExtension);
 
     if (saveToAccount) {
-      // Permanent storage: /files/{userId}/{uuid}-{fileName}
+      // Permanent storage: files/{userId}/conversions/{year}/{month}/{conversionType}/{uuid}-{timestamp}-{fileName}
       return {
-        path: `files/${user.uid}/${uuid}-${fileName}`,
+        path: `files/${user.uid}/conversions/${year}/${month}/${conversionType}/${uuid}-${timestamp}-${fileName}`,
         uuid
       };
     } else {
-      // Temporary storage: /temp/{uuid}/{anonymizedFileName}
-      // Fully anonymous - no user ID included
-      // Anonymize filename but keep extension for processing
-      const fileExtension = fileName.includes('.') 
-        ? fileName.substring(fileName.lastIndexOf('.')) 
-        : '';
-      const anonymizedFileName = `file${fileExtension}`;
+      // Temporary storage: temp/conversions/{year-month-day}/{conversionType}/{uuid}/original.{ext}
+      const day = String(now.getDate()).padStart(2, '0');
+      const dateFolder = `${year}-${month}-${day}`;
+      const anonymizedFileName = `original.${fileExtension}`;
       
       return {
-        path: `temp/${uuid}/${anonymizedFileName}`,
+        path: `temp/conversions/${dateFolder}/${conversionType}/${uuid}/${anonymizedFileName}`,
         uuid
       };
     }
+  }
+
+  /**
+   * Determines conversion type based on file extension
+   * @param extension - File extension
+   * @returns Conversion type string
+   */
+  private getConversionType(extension: string): string {
+    // Map extensions to conversion types
+    const conversionMap: { [key: string]: string } = {
+      'pdf': 'pdf-to-docx',
+      'docx': 'docx-to-pdf',
+      'doc': 'doc-to-pdf',
+      'jpg': 'image-conversion',
+      'jpeg': 'image-conversion',
+      'png': 'image-conversion',
+    };
+
+    return conversionMap[extension] || 'unknown-format';
   }
 
   /**
@@ -72,6 +97,18 @@ class StorageService {
     options: UploadOptions
   ): Promise<FileUploadResult> {
     try {
+      // Validate file size against environment configuration
+      const maxSizeBytes = env.features.maxFileSizeMB * 1024 * 1024;
+      if (file.size > maxSizeBytes) {
+        throw new Error(`File size exceeds maximum of ${env.features.maxFileSizeMB}MB`);
+      }
+      
+      // Validate file type if conversion is enabled
+      const fileExtension = file.name.split('.').pop()?.toLowerCase() || '';
+      if (!env.conversion.supportedInputFormats.includes(fileExtension)) {
+        console.warn(`File type .${fileExtension} may not be supported for conversion`);
+      }
+      
       const { path: storagePath, uuid } = this.generateStoragePath(file.name, options.saveToAccount);
       const storageRef = ref(this.storage, storagePath);
       
