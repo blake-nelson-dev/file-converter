@@ -206,7 +206,7 @@ async function updateConversionStatus(
       updateData.conversionError = error;
     }
     
-    await fileRef.update(updateData);
+    await fileRef.update(updateData as {[key: string]: any});
     logger.info("Firestore updated", { fileId, status, userId });
     
   } catch (error) {
