@@ -16,6 +16,16 @@ import {
   isValidFileType 
 } from "./utils/storage.utils";
 
+// Type definition for Firestore update data
+interface ConversionStatusUpdate {
+  conversionStatus: "processing" | "completed" | "failed";
+  lastUpdated: admin.firestore.FieldValue;
+  convertedPath?: string;
+  convertedAt?: admin.firestore.FieldValue;
+  processingTime?: number;
+  conversionError?: string;
+}
+
 // Initialize Firebase Admin SDK
 admin.initializeApp();
 
@@ -175,12 +185,13 @@ async function updateConversionStatus(
     
     const userId = pathParts[1];
     const fileName = pathParts[pathParts.length - 1]; // Last part is the filename
-    const fileId = fileName.split("-")[0]; // First part before hyphen is UUID
+    // UUID is the first 36 characters (standard UUID format)
+    const fileId = fileName.substring(0, 36);
     
     const db = admin.firestore();
     const fileRef = db.collection("users").doc(userId).collection("files").doc(fileId);
     
-    const updateData: any = {
+    const updateData: ConversionStatusUpdate = {
       conversionStatus: status,
       lastUpdated: admin.firestore.FieldValue.serverTimestamp(),
     };

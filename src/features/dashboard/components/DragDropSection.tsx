@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { storageService } from '../../../services';
 import type { FileUploadResult } from '../../../services';
 import { useAuth } from '../../../contexts/AuthContext';
+import ConversionStatus from '../../conversion/components/ConversionStatus';
 
 interface FileUploadState {
   file: File;
@@ -15,6 +16,8 @@ interface CompletedFile {
   fileName: string;
   downloadURL: string;
   uploadedAt: Date;
+  fileId?: string;
+  uuid: string;
 }
 
 // Internal Components
@@ -47,31 +50,54 @@ const StorageToggle: React.FC<{
 
 const CompletedFiles: React.FC<{
   completedFiles: CompletedFile[];
-}> = ({ completedFiles }) => (
-  <div className="mt-6 p-4 bg-green-50 rounded-lg">
-    <h4 className="text-sm font-medium text-green-900 mb-3">Completed Uploads ({completedFiles.length})</h4>
-    <ul className="space-y-2">
-      {completedFiles.map((file, index) => (
-        <li key={index} className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
-            <span className="text-sm text-gray-700">{file.fileName}</span>
-          </div>
-          <a 
-            href={file.downloadURL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-xs text-blue-600 hover:underline"
-          >
-            View file
-          </a>
-        </li>
-      ))}
-    </ul>
-  </div>
-);
+  saveToAccount: boolean;
+}> = ({ completedFiles, saveToAccount }) => {
+  const isPdf = (fileName: string) => fileName.toLowerCase().endsWith('.pdf');
+  
+  return (
+    <div className="mt-6 space-y-4">
+      <div className="p-4 bg-green-50 rounded-lg">
+        <h4 className="text-sm font-medium text-green-900 mb-3">Completed Uploads ({completedFiles.length})</h4>
+        <ul className="space-y-2">
+          {completedFiles.map((file, index) => (
+            <li key={index} className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                <span className="text-sm text-gray-700">{file.fileName}</span>
+              </div>
+              <a 
+                href={file.downloadURL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-blue-600 hover:underline"
+              >
+                View original
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+      
+      {/* Show conversion status for PDF files that were saved to account */}
+      {saveToAccount && completedFiles.some(f => isPdf(f.fileName) && f.fileId) && (
+        <div className="space-y-3">
+          <h4 className="text-sm font-medium text-gray-700">Conversion Status</h4>
+          {completedFiles
+            .filter(file => isPdf(file.fileName) && file.fileId)
+            .map((file, index) => (
+              <ConversionStatus
+                key={file.fileId || index}
+                fileId={file.fileId!}
+                fileName={file.fileName}
+              />
+            ))}
+        </div>
+      )}
+    </div>
+  );
+};
 
 const FileUploadProgress: React.FC<{
   uploadStates: FileUploadState[];
@@ -241,7 +267,9 @@ const DragDropSection: React.FC = () => {
         setCompletedFiles(prev => [...prev, {
           fileName: file.name,
           downloadURL: result.downloadURL,
-          uploadedAt: new Date()
+          uploadedAt: new Date(),
+          fileId: result.fileId,
+          uuid: result.uuid
         }]);
       } catch (error) {
         console.error('Upload error:', error);
@@ -378,7 +406,7 @@ const DragDropSection: React.FC = () => {
         )}
 
         {completedFiles.length > 0 && uploadStates.length === 0 && (
-          <CompletedFiles completedFiles={completedFiles} />
+          <CompletedFiles completedFiles={completedFiles} saveToAccount={saveToAccount} />
         )}
       </div>
     </section>

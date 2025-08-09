@@ -2,7 +2,6 @@ import {
   collection, 
   doc, 
   setDoc, 
-  addDoc, 
   getDocs, 
   getDoc,
   query, 
@@ -12,9 +11,18 @@ import {
   serverTimestamp,
   deleteDoc
 } from 'firebase/firestore';
-import type { Timestamp } from 'firebase/firestore';
+import type { Timestamp, FieldValue } from 'firebase/firestore';
 import { db, storage } from '../config/firebase.config';
 import { ref, getDownloadURL } from 'firebase/storage';
+
+interface ConversionStatusUpdate {
+  conversionStatus: 'pending' | 'processing' | 'completed' | 'failed';
+  lastUpdated: FieldValue;
+  convertedPath?: string;
+  convertedAt?: FieldValue;
+  processingTime?: number;
+  conversionError?: string;
+}
 
 export interface FileMetadata {
   fileName: string;
@@ -24,6 +32,11 @@ export interface FileMetadata {
   uploadedAt: Timestamp | Date;
   uuid: string;
   status: 'active' | 'deleted';
+  conversionStatus?: 'pending' | 'processing' | 'completed' | 'failed';
+  conversionError?: string;
+  convertedPath?: string;
+  convertedAt?: Timestamp | Date;
+  processingTime?: number;
 }
 
 export interface UserFile extends FileMetadata {
@@ -39,7 +52,8 @@ class FirestoreService {
    */
   async createFileDocument(userId: string, fileData: Omit<FileMetadata, 'uploadedAt' | 'status'>): Promise<string> {
     try {
-      const filesCollection = collection(db, 'users', userId, 'files');
+      // Use UUID as the document ID for consistent tracking
+      const fileDoc = doc(db, 'users', userId, 'files', fileData.uuid);
       
       const docData: FileMetadata = {
         ...fileData,
@@ -47,8 +61,8 @@ class FirestoreService {
         status: 'active'
       };
 
-      const docRef = await addDoc(filesCollection, docData);
-      return docRef.id;
+      await setDoc(fileDoc, docData);
+      return fileData.uuid;
     } catch (error) {
       console.error('Error creating file document:', error);
       throw error;
@@ -158,6 +172,116 @@ class FirestoreService {
       return await getDownloadURL(storageRef);
     } catch (error) {
       console.error('Error generating download URL from path:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Gets a single file document by ID
+   * @param userId - User ID
+   * @param fileId - File document ID
+   * @returns File metadata
+   */
+  async getFileById(userId: string, fileId: string): Promise<UserFile | null> {
+    try {
+      const fileDoc = doc(db, 'users', userId, 'files', fileId);
+      const fileSnapshot = await getDoc(fileDoc);
+      
+      if (!fileSnapshot.exists()) {
+        return null;
+      }
+
+      return {
+        id: fileSnapshot.id,
+        ...fileSnapshot.data()
+      } as UserFile;
+    } catch (error) {
+      console.error('Error getting file by ID:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Updates the conversion status of a file
+   * @param userId - User ID
+   * @param fileId - File document ID
+   * @param status - New conversion status
+   * @param additionalData - Additional data to update
+   */
+  async updateConversionStatus(
+    userId: string, 
+    fileId: string, 
+    status: 'pending' | 'processing' | 'completed' | 'failed',
+    additionalData?: {
+      conversionError?: string;
+      convertedPath?: string;
+      processingTime?: number;
+    }
+  ): Promise<void> {
+    try {
+      const fileDoc = doc(db, 'users', userId, 'files', fileId);
+      const updateData: ConversionStatusUpdate = {
+        conversionStatus: status,
+        lastUpdated: serverTimestamp()
+      };
+
+      if (status === 'completed' && additionalData?.convertedPath) {
+        updateData.convertedPath = additionalData.convertedPath;
+        updateData.convertedAt = serverTimestamp();
+        if (additionalData.processingTime) {
+          updateData.processingTime = additionalData.processingTime;
+        }
+      }
+
+      if (status === 'failed' && additionalData?.conversionError) {
+        updateData.conversionError = additionalData.conversionError;
+      }
+
+      await setDoc(fileDoc, updateData as Partial<FileMetadata>, { merge: true });
+    } catch (error) {
+      console.error('Error updating conversion status:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Gets files with their conversion status
+   * @param userId - User ID
+   * @param conversionStatus - Optional filter by conversion status
+   * @returns Array of user files with conversion status
+   */
+  async getUserFilesWithConversionStatus(
+    userId: string, 
+    conversionStatus?: 'pending' | 'processing' | 'completed' | 'failed'
+  ): Promise<UserFile[]> {
+    try {
+      const filesCollection = collection(db, 'users', userId, 'files');
+      let q;
+
+      if (conversionStatus) {
+        q = query(
+          filesCollection,
+          where('status', '==', 'active'),
+          where('conversionStatus', '==', conversionStatus),
+          orderBy('uploadedAt', 'desc'),
+          limit(50)
+        );
+      } else {
+        q = query(
+          filesCollection,
+          where('status', '==', 'active'),
+          orderBy('uploadedAt', 'desc'),
+          limit(50)
+        );
+      }
+
+      const snapshot = await getDocs(q);
+      return snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      } as UserFile));
+    } catch (error) {
+      console.error('Error getting user files with conversion status:', error);
       throw error;
     }
   }

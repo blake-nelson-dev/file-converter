@@ -22,6 +22,8 @@ export interface FileUploadResult {
   storagePath: string;
   fileName: string;
   fileSize: number;
+  fileId?: string;
+  uuid: string;
 }
 
 class StorageService {
@@ -142,13 +144,14 @@ class StorageService {
                 downloadURL,
                 storagePath,
                 fileName: file.name,
-                fileSize: file.size
+                fileSize: file.size,
+                uuid
               };
 
               // Create Firestore document if saving to account
               if (options.saveToAccount && auth.currentUser) {
                 try {
-                  await firestoreService.createFileDocument(auth.currentUser.uid, {
+                  const fileId = await firestoreService.createFileDocument(auth.currentUser.uid, {
                     fileName: file.name,
                     fileSize: file.size,
                     fileType: file.type || 'unknown',
@@ -156,6 +159,17 @@ class StorageService {
                     uuid
                     // downloadURL removed - will be generated on demand
                   });
+                  result.fileId = fileId;
+                  
+                  // Set initial conversion status based on file type
+                  const fileExtension = file.name.split('.').pop()?.toLowerCase() || '';
+                  if (fileExtension === 'pdf') {
+                    await firestoreService.updateConversionStatus(
+                      auth.currentUser.uid, 
+                      fileId, 
+                      'pending'
+                    );
+                  }
                 } catch (firestoreError) {
                   console.error('Failed to create Firestore document:', firestoreError);
                   // Continue even if Firestore fails - file is already uploaded
