@@ -3,6 +3,7 @@ import { storageService } from '../../../services';
 import type { FileUploadResult } from '../../../services';
 import { useAuth } from '../../../contexts/AuthContext';
 import ConversionStatus from '../../conversion/components/ConversionStatus';
+import FilePreview from '../../conversion/components/FilePreview';
 
 interface FileUploadState {
   file: File;

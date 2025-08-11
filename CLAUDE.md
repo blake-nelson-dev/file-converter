@@ -8,38 +8,44 @@ ConvertStudio - A modern file conversion platform built with React, TypeScript, 
 
 ## Commands
 
-### Development
+### Development (Turbo Monorepo)
 ```bash
-npm run dev        # Start Vite development server (port 5173)
-npm run build      # TypeScript check + Vite production build
-npm run preview    # Preview production build locally
-npm run lint       # Run ESLint
+npm run dev              # Start all workspaces in development (Turbo parallel)
+npm run build            # Build all workspaces (Turbo with dependencies)
+npm run typecheck        # Type check all workspaces
+npm run test             # Run tests across all workspaces
+npm run clean            # Clean all build artifacts
+npm run setup            # Install dependencies and build all packages
+npm run verify           # Verify monorepo structure
+```
+
+### Workspace-specific Commands
+```bash
+# Web Frontend (packages/web)
+npm run dev --filter=web       # Start Vite dev server (port 5173)
+npm run build --filter=web     # Build React application
+npm run deploy --filter=web    # Deploy to Vercel
+
+# Firebase Functions (packages/functions)  
+npm run dev --filter=functions    # Start Functions emulator
+npm run build --filter=functions  # Build Functions TypeScript
+npm run deploy --filter=functions # Deploy Cloud Functions
+
+# Firebase Configuration (packages/config)
+cd packages/config && firebase emulators:start    # Start all Firebase emulators
+cd packages/config && firebase deploy             # Deploy all Firebase services
 ```
 
 ### Firebase Development & Deployment
 ```bash
 # Local Development
-firebase emulators:start                          # Start all Firebase emulators
-firebase emulators:start --only functions,firestore  # Specific emulators
-
-# Functions Development
-cd functions && npm run build     # Build Functions TypeScript
-cd functions && npm run serve     # Serve Functions locally
-cd functions && npm run shell     # Functions interactive shell
+cd packages/config && firebase emulators:start                          # Start all Firebase emulators
+cd packages/config && firebase emulators:start --only functions,firestore  # Specific emulators
 
 # Firebase Deployment
-firebase deploy --only functions  # Deploy Cloud Functions
-firebase deploy --only firestore:rules  # Deploy Firestore rules
-firebase deploy --only storage:rules     # Deploy Storage rules
-```
-
-### Frontend Deployment (Vercel)
-```bash
-# Vercel CLI (if installed)
-vercel                        # Deploy to Vercel
-vercel --prod                 # Deploy to production
-
-# Or connect GitHub repo to Vercel for automatic deployments
+cd packages/config && firebase deploy --only functions    # Deploy Cloud Functions
+cd packages/config && firebase deploy --only firestore:rules  # Deploy Firestore rules
+cd packages/config && firebase deploy --only storage:rules     # Deploy Storage rules
 ```
 
 ## Architecture
@@ -50,55 +56,84 @@ vercel --prod                 # Deploy to production
 - **Tailwind CSS** (v4) configured via Vite plugin
 - **Firebase SDK** for authentication, storage, and database
 
-### Project Structure
+### Monorepo Structure
 ```
-src/
-├── config/           # Firebase configuration (firebase.config.ts)
-├── contexts/         # React contexts (AuthContext.tsx)
-├── features/         # Feature-based architecture
-│   └── dashboard/    # Dashboard feature module
-│       ├── components/   # DragDropSection with full upload functionality
-│       └── pages/        # Dashboard page component
-├── services/         # Business logic services
-│   ├── storage.service.ts    # Firebase Storage operations
-│   ├── firestore.service.ts  # Firestore database operations
-│   └── index.ts             # Service exports
-├── shared/           # Shared/reusable components
-│   └── components/   # Button, Header, HeroSection, GlobalLoading
-├── App.tsx          # Main application component
-└── main.tsx         # Application entry point
+packages/
+├── web/              # React Frontend Application
+│   ├── src/
+│   │   ├── config/           # Firebase configuration (firebase.config.ts)
+│   │   ├── contexts/         # React contexts (AuthContext.tsx)
+│   │   ├── features/         # Feature-based architecture
+│   │   │   ├── auth/         # Authentication features
+│   │   │   ├── conversion/   # File conversion UI components
+│   │   │   └── dashboard/    # Dashboard feature module
+│   │   │       ├── components/   # DragDropSection with full upload functionality
+│   │   │       └── pages/        # Dashboard page component
+│   │   ├── services/         # Business logic services
+│   │   │   ├── storage.service.ts    # Firebase Storage operations
+│   │   │   ├── firestore.service.ts  # Firestore database operations
+│   │   │   └── index.ts             # Service exports
+│   │   ├── shared/           # Shared/reusable components
+│   │   │   └── components/   # Button, Header, HeroSection, GlobalLoading
+│   │   ├── App.tsx          # Main application component
+│   │   └── main.tsx         # Application entry point
+│   ├── package.json         # Web app dependencies
+│   └── vite.config.ts       # Vite configuration
+├── functions/        # Firebase Cloud Functions
+│   ├── src/
+│   │   ├── converters/      # File conversion logic
+│   │   │   └── pdfToDocx.converter.ts
+│   │   ├── types/           # TypeScript type definitions
+│   │   ├── utils/           # Utility functions
+│   │   └── index.ts         # Functions entry point
+│   └── package.json         # Functions dependencies
+├── config/           # Firebase Configuration
+│   ├── firebase.json        # Firebase project configuration
+│   ├── firestore.rules      # Firestore security rules
+│   ├── firestore.indexes.json  # Firestore indexes
+│   └── storage.rules        # Storage security rules
+├── shared/           # Shared TypeScript Types & Utilities
+│   ├── src/
+│   │   ├── types/           # Shared type definitions
+│   │   └── utils/           # Shared utility functions
+│   └── package.json         # Shared package dependencies
+└── tools/            # Development Tools & Scripts
+    └── scripts/             # Build and utility scripts
 
-functions/            # Firebase Cloud Functions
-├── src/             # TypeScript functions source
-└── package.json     # Functions dependencies
-
-planning/            # Project documentation
+docs/                 # Project Documentation
 ├── sprint-1-august-2025.md  # Current sprint planning
 └── privacy-policy.md        # Privacy policy document
 ```
 
 ### Architecture Overview
 
-- **Frontend**: React SPA hosted on Vercel
-- **Backend**: Firebase Functions (serverless)
+- **Monorepo**: Turbo-powered workspace with shared dependencies
+- **Frontend**: React SPA (packages/web) hosted on Vercel
+- **Backend**: Firebase Functions (packages/functions) - serverless
 - **Database**: Firestore for user data and file metadata
 - **Storage**: Firebase Storage for file uploads/downloads
 - **Authentication**: Firebase Auth (Email/Password + Google OAuth)
 - **File Processing**: Cloud Functions for conversion logic
+- **Shared Code**: Common types and utilities (packages/shared)
+- **Configuration**: Centralized Firebase config (packages/config)
 
 ### Key Implementation Patterns
 
-1. **Feature-Based Architecture**: Components organized by feature domain in `src/features/`, with shared components in `src/shared/`
-2. **Service Layer Architecture**: Separation of concerns with dedicated services for Firebase operations
-3. **Component Design**: Follows consistent patterns with TypeScript interfaces, proper prop typing, and Tailwind CSS styling
-4. **Environment Variables**: Firebase config uses Vite's `import.meta.env` pattern for environment-specific configuration
-5. **Privacy-First Design**: Dual storage modes with anonymous processing options
-6. **Security-Focused**: UUID-based paths, on-demand URL generation, proper access controls
-7. **Styling System**: 
+1. **Monorepo Architecture**: Turbo-powered workspace organization with:
+   - Shared TypeScript types and utilities across packages
+   - Optimized build caching and parallel execution
+   - Clear separation of concerns (web, functions, config, shared)
+2. **Feature-Based Architecture**: Components organized by feature domain in `packages/web/src/features/`, with shared components in `packages/web/src/shared/`
+3. **Service Layer Architecture**: Separation of concerns with dedicated services for Firebase operations
+4. **Component Design**: Follows consistent patterns with TypeScript interfaces, proper prop typing, and Tailwind CSS styling
+5. **Environment Variables**: Firebase config uses Vite's `import.meta.env` pattern for environment-specific configuration
+6. **Privacy-First Design**: Dual storage modes with anonymous processing options
+7. **Security-Focused**: UUID-based paths, on-demand URL generation, proper access controls
+8. **Styling System**: 
    - Tailwind CSS v4 with Vite plugin integration
    - Consistent color palette (blue-600 for primary actions, gray scale for neutrals)
    - Responsive design patterns with mobile-first approach
-8. **TypeScript Configuration**: Split between app (`tsconfig.app.json`) and node (`tsconfig.node.json`) contexts
+9. **TypeScript Configuration**: Optimized for monorepo with shared build configurations
 
 ### Component Architecture
 
@@ -123,7 +158,8 @@ planning/            # Project documentation
 
 The project follows a part-time agile development approach with 2-week sprints. 
 
-### Current Implementation Status (Sprint 1 - August 6, 2025)
+### Current Implementation Status (Sprint 1 - August 11, 2025)
+- ✅ **Monorepo Architecture**: Turbo-powered workspace with optimized builds
 - ✅ **File Upload System**: Complete with organized directory structure
 - ✅ **Authentication**: Firebase Auth with Email/Password + Google OAuth
 - ✅ **Security Architecture**: UUID-based paths, on-demand URL generation
@@ -133,6 +169,8 @@ The project follows a part-time agile development approach with 2-week sprints.
 - ✅ **Cloud Functions**: Complete conversion processing pipeline
 - ✅ **Environment Configuration**: Type-safe environment validation
 - ✅ **Storage Organization**: Scalable directory structure implemented
+- ✅ **Shared Types**: Common TypeScript definitions across packages
+- ✅ **Build System**: Optimized Turbo configuration with caching
 
 ## Development Guidelines
 
@@ -144,9 +182,11 @@ The project follows a part-time agile development approach with 2-week sprints.
 - Implement responsive design with mobile-first approach using Tailwind breakpoints
 
 ### Firebase Integration
-- Firebase configuration is centralized in `src/config/firebase.config.ts`
+- Firebase configuration is centralized in `packages/web/src/config/firebase.config.ts`
+- Firebase project configuration in `packages/config/firebase.json`
 - Environment variables follow `VITE_FIREBASE_*` naming convention
 - Import Firebase services as needed in components (not globally initialized)
+- Security rules and indexes managed in `packages/config/`
 
 ## Storage Architecture
 

@@ -14,6 +14,7 @@ export interface BaseFileMetadata {
   readonly storagePath: string;
   readonly status: FileStatusType;
   readonly conversionStatus?: ConversionStatusType;
+  readonly conversionProgress?: number;
   readonly conversionError?: string;
   readonly convertedPath?: string;
   readonly processingTime?: number;
@@ -40,6 +41,7 @@ export interface UserFile extends ClientFileMetadata {
 export interface ConversionStatusUpdate {
   conversionStatus: ConversionStatusType;
   lastUpdated: unknown; // Firebase FieldValue - varies by SDK
+  conversionProgress?: number;
   convertedPath?: string;
   convertedAt?: unknown; // Firebase FieldValue
   processingTime?: number;

@@ -19,6 +19,8 @@ const ConversionStatus: React.FC<ConversionStatusProps> = ({
   const { currentUser } = useAuth();
   const [file, setFile] = useState<UserFile | null>(null);
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
+  const [progress, setProgress] = useState(0);
+  const [progressStage, setProgressStage] = useState<string>('');
 
   useEffect(() => {
     if (!currentUser || !fileId) return;
@@ -33,6 +35,36 @@ const ConversionStatus: React.FC<ConversionStatusProps> = ({
         } as UserFile;
         
         setFile(fileData);
+        
+        // Update progress based on conversion status
+        switch (fileData.conversionStatus) {
+          case 'pending':
+            setProgress(10);
+            setProgressStage('Queued for conversion');
+            break;
+          case 'processing':
+            // Simulate progress stages based on processing time
+            const processingProgress = fileData.conversionProgress || 50;
+            setProgress(processingProgress);
+            if (processingProgress < 30) {
+              setProgressStage('Reading file...');
+            } else if (processingProgress < 60) {
+              setProgressStage('Analyzing content...');
+            } else if (processingProgress < 90) {
+              setProgressStage('Converting format...');
+            } else {
+              setProgressStage('Finalizing...');
+            }
+            break;
+          case 'completed':
+            setProgress(100);
+            setProgressStage('Conversion complete!');
+            break;
+          case 'failed':
+            setProgress(0);
+            setProgressStage('Conversion failed');
+            break;
+        }
 
         // If conversion is complete, get download URL
         if (fileData.conversionStatus === 'completed' && fileData.convertedPath) {
@@ -86,9 +118,9 @@ const ConversionStatus: React.FC<ConversionStatusProps> = ({
   const getStatusText = () => {
     switch (file?.conversionStatus) {
       case 'pending':
-        return 'Waiting to start conversion...';
+        return progressStage || 'Waiting to start conversion...';
       case 'processing':
-        return 'Converting file...';
+        return progressStage || 'Converting file...';
       case 'completed':
         return `Conversion complete! ${file.processingTime ? `(${(file.processingTime / 1000).toFixed(1)}s)` : ''}`;
       case 'failed':
@@ -138,10 +170,19 @@ const ConversionStatus: React.FC<ConversionStatusProps> = ({
         )}
       </div>
 
-      {file?.conversionStatus === 'processing' && (
+      {(file?.conversionStatus === 'processing' || file?.conversionStatus === 'pending') && (
         <div className="mt-3">
-          <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
-            <div className="bg-blue-600 h-2 rounded-full animate-pulse" style={{ width: '60%' }}></div>
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-xs text-gray-600">{progressStage}</span>
+            <span className="text-xs font-medium text-gray-700">{progress}%</span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
+            <div 
+              className="bg-blue-600 h-2.5 rounded-full transition-all duration-500 ease-out relative"
+              style={{ width: `${progress}%` }}
+            >
+              <div className="absolute inset-0 bg-white/20 animate-pulse"></div>
+            </div>
           </div>
         </div>
       )}

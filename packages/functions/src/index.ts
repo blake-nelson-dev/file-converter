@@ -88,21 +88,37 @@ export const processFileConversion = onObjectFinalized(
     }
     
     try {
-      // Update status to processing
+      // Update status to processing with initial progress
       if (filePath.startsWith("files/")) {
-        await updateConversionStatus(filePath, "processing");
+        await updateConversionStatus(filePath, "processing", undefined, undefined, undefined, 10);
       }
       
       // Download the PDF file to memory
       logger.info("Downloading file to memory");
       const pdfBuffer = await downloadFileToMemory(filePath);
       
+      // Update progress after download
+      if (filePath.startsWith("files/")) {
+        await updateConversionStatus(filePath, "processing", undefined, undefined, undefined, 25);
+      }
+      
       // Convert PDF to DOCX
       logger.info("Starting PDF to DOCX conversion");
+      
+      // Update progress - analyzing content
+      if (filePath.startsWith("files/")) {
+        await updateConversionStatus(filePath, "processing", undefined, undefined, undefined, 40);
+      }
+      
       const conversionResult = await convertPdfToDocx(pdfBuffer);
       
       if (!conversionResult.success || !conversionResult.buffer) {
         throw new Error(conversionResult.error || "Conversion failed");
+      }
+      
+      // Update progress - conversion complete, preparing upload
+      if (filePath.startsWith("files/")) {
+        await updateConversionStatus(filePath, "processing", undefined, undefined, undefined, 75);
       }
       
       // Generate path for converted file
@@ -116,6 +132,11 @@ export const processFileConversion = onObjectFinalized(
         "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
       );
       
+      // Update progress - finalizing
+      if (filePath.startsWith("files/")) {
+        await updateConversionStatus(filePath, "processing", undefined, undefined, undefined, 90);
+      }
+      
       // Update Firestore with success status
       if (filePath.startsWith("files/")) {
         await updateConversionStatus(
@@ -123,7 +144,8 @@ export const processFileConversion = onObjectFinalized(
           "completed", 
           undefined, 
           convertedPath,
-          conversionResult.processingTime
+          conversionResult.processingTime,
+          100
         );
       }
       
@@ -162,7 +184,8 @@ async function updateConversionStatus(
   status: ConversionStatusType,
   error?: string,
   convertedPath?: string,
-  processingTime?: number
+  processingTime?: number,
+  progress?: number
 ): Promise<void> {
   try {
     // Extract user ID and file ID from new path structure
@@ -186,6 +209,10 @@ async function updateConversionStatus(
       conversionStatus: status,
       lastUpdated: admin.firestore.FieldValue.serverTimestamp(),
     };
+    
+    if (progress !== undefined) {
+      updateData.conversionProgress = progress;
+    }
     
     if (status === "completed" && convertedPath) {
       updateData.convertedPath = convertedPath;
