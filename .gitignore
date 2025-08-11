@@ -1,3 +1,27 @@
+# Dependencies
+node_modules/
+*/node_modules/
+
+# Build outputs
+dist/
+lib/
+*.tsbuildinfo
+dist-ssr
+**/dist/
+**/lib/
+
+# Turbo cache
+.turbo/
+**/.turbo/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+*.local
+**/.env
+**/.env.local
+
 # Logs
 logs
 *.log
@@ -6,12 +30,23 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
+firebase-debug.log*
+firestore-debug.log*
+ui-debug.log*
+pubsub-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
-.env
+# Firebase
+.firebase/
+firebase-debug.log*
+firestore-debug.log*
+
+# Package manager files (only ignore non-npm lock files)
+yarn.lock
+pnpm-lock.yaml
+
+# Vercel
+.vercel/
+**/.vercel/
 
 # Editor directories and files
 .vscode/*
@@ -23,3 +58,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Temporary folders
+tmp/
+temp/

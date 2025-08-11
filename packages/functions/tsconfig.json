@@ -1,4 +1,5 @@
 {
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
     "module": "NodeNext",
     "esModuleInterop": true,
@@ -8,7 +9,10 @@
     "outDir": "lib",
     "sourceMap": true,
     "strict": true,
-    "target": "es2022"
+    "target": "es2022",
+    "baseUrl": ".",
+    "noEmit": false,
+    "allowImportingTsExtensions": false
   },
   "compileOnSave": true,
   "include": [

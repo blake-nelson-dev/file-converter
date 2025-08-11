@@ -16,15 +16,15 @@ const ConversionStatus: React.FC<ConversionStatusProps> = ({
   fileName, 
   onConversionComplete 
 }) => {
-  const { user } = useAuth();
+  const { currentUser } = useAuth();
   const [file, setFile] = useState<UserFile | null>(null);
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!user || !fileId) return;
+    if (!currentUser || !fileId) return;
 
     // Set up real-time listener for file updates
-    const fileDoc = doc(db, 'users', user.uid, 'files', fileId);
+    const fileDoc = doc(db, 'users', currentUser.uid, 'files', fileId);
     const unsubscribe = onSnapshot(fileDoc, async (snapshot) => {
       if (snapshot.exists()) {
         const fileData = {
@@ -50,7 +50,7 @@ const ConversionStatus: React.FC<ConversionStatusProps> = ({
     });
 
     return () => unsubscribe();
-  }, [user, fileId, onConversionComplete]);
+  }, [currentUser, fileId, onConversionComplete]);
 
   const getStatusIcon = () => {
     switch (file?.conversionStatus) {

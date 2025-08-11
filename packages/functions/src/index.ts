@@ -15,16 +15,7 @@ import {
   generateConvertedFilePath,
   isValidFileType 
 } from "./utils/storage.utils";
-
-// Type definition for Firestore update data
-interface ConversionStatusUpdate {
-  conversionStatus: "processing" | "completed" | "failed";
-  lastUpdated: admin.firestore.FieldValue;
-  convertedPath?: string;
-  convertedAt?: admin.firestore.FieldValue;
-  processingTime?: number;
-  conversionError?: string;
-}
+import { ConversionStatusUpdate, ConversionStatusType } from "shared";
 
 // Initialize Firebase Admin SDK
 admin.initializeApp();
@@ -168,7 +159,7 @@ export const processFileConversion = onObjectFinalized(
  */
 async function updateConversionStatus(
   filePath: string,
-  status: "processing" | "completed" | "failed",
+  status: ConversionStatusType,
   error?: string,
   convertedPath?: string,
   processingTime?: number

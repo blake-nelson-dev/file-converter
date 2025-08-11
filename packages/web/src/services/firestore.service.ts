@@ -14,34 +14,16 @@ import {
 import type { Timestamp, FieldValue } from 'firebase/firestore';
 import { db, storage } from '../config/firebase.config';
 import { ref, getDownloadURL } from 'firebase/storage';
+import type { 
+  ClientFileMetadata, 
+  ConversionStatusUpdate, 
+  UserFile,
+  CreateFileInput,
+  ConversionStatusType 
+} from 'shared';
 
-interface ConversionStatusUpdate {
-  conversionStatus: 'pending' | 'processing' | 'completed' | 'failed';
-  lastUpdated: FieldValue;
-  convertedPath?: string;
-  convertedAt?: FieldValue;
-  processingTime?: number;
-  conversionError?: string;
-}
-
-export interface FileMetadata {
-  fileName: string;
-  fileSize: number;
-  fileType: string;
-  storagePath: string;
-  uploadedAt: Timestamp | Date;
-  uuid: string;
-  status: 'active' | 'deleted';
-  conversionStatus?: 'pending' | 'processing' | 'completed' | 'failed';
-  conversionError?: string;
-  convertedPath?: string;
-  convertedAt?: Timestamp | Date;
-  processingTime?: number;
-}
-
-export interface UserFile extends FileMetadata {
-  id: string;
-}
+// Re-export types for backward compatibility
+export type { ClientFileMetadata as FileMetadata, UserFile };
 
 class FirestoreService {
   /**
@@ -50,14 +32,14 @@ class FirestoreService {
    * @param fileData - File metadata to save
    * @returns Document ID
    */
-  async createFileDocument(userId: string, fileData: Omit<FileMetadata, 'uploadedAt' | 'status'>): Promise<string> {
+  async createFileDocument(userId: string, fileData: CreateFileInput): Promise<string> {
     try {
       // Use UUID as the document ID for consistent tracking
       const fileDoc = doc(db, 'users', userId, 'files', fileData.uuid);
       
-      const docData: FileMetadata = {
+      const docData: Omit<ClientFileMetadata, 'uploadedAt'> & { uploadedAt: FieldValue } = {
         ...fileData,
-        uploadedAt: serverTimestamp() as Timestamp,
+        uploadedAt: serverTimestamp(),
         status: 'active'
       };
 
@@ -142,7 +124,7 @@ class FirestoreService {
         throw new Error('File not found');
       }
 
-      const fileData = fileSnapshot.data() as FileMetadata;
+      const fileData = fileSnapshot.data() as ClientFileMetadata;
       
       // Check if file is active
       if (fileData.status !== 'active') {
@@ -211,7 +193,7 @@ class FirestoreService {
   async updateConversionStatus(
     userId: string, 
     fileId: string, 
-    status: 'pending' | 'processing' | 'completed' | 'failed',
+    status: ConversionStatusType,
     additionalData?: {
       conversionError?: string;
       convertedPath?: string;
@@ -237,7 +219,7 @@ class FirestoreService {
         updateData.conversionError = additionalData.conversionError;
       }
 
-      await setDoc(fileDoc, updateData as Partial<FileMetadata>, { merge: true });
+      await setDoc(fileDoc, updateData as Partial<ClientFileMetadata>, { merge: true });
     } catch (error) {
       console.error('Error updating conversion status:', error);
       throw error;
@@ -252,7 +234,7 @@ class FirestoreService {
    */
   async getUserFilesWithConversionStatus(
     userId: string, 
-    conversionStatus?: 'pending' | 'processing' | 'completed' | 'failed'
+    conversionStatus?: ConversionStatusType
   ): Promise<UserFile[]> {
     try {
       const filesCollection = collection(db, 'users', userId, 'files');

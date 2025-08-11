@@ -9,4 +9,5 @@ export default defineConfig({
     react(), 
     tailwindcss()
   ],
+  // No alias needed - vite will resolve 'shared' package automatically
 })
