@@ -15,7 +15,7 @@ import {
   generateConvertedFilePath,
   isValidFileType 
 } from "./utils/storage.utils";
-import { ConversionStatusUpdate, ConversionStatusType } from "shared";
+import { ConversionStatusType } from "shared";
 
 // Initialize Firebase Admin SDK
 admin.initializeApp();
@@ -205,26 +205,20 @@ async function updateConversionStatus(
     const db = admin.firestore();
     const fileRef = db.collection("users").doc(userId).collection("files").doc(fileId);
     
-    const updateData: ConversionStatusUpdate = {
+    // Build update data object dynamically to satisfy Firebase Admin SDK
+    const updateData = {
       conversionStatus: status,
       lastUpdated: admin.firestore.FieldValue.serverTimestamp(),
+      ...(progress !== undefined && { conversionProgress: progress }),
+      ...(status === "completed" && convertedPath && {
+        convertedPath,
+        convertedAt: admin.firestore.FieldValue.serverTimestamp(),
+        ...(processingTime && { processingTime })
+      }),
+      ...(status === "failed" && error && { conversionError: error })
     };
     
-    if (progress !== undefined) {
-      updateData.conversionProgress = progress;
-    }
-    
-    if (status === "completed" && convertedPath) {
-      updateData.convertedPath = convertedPath;
-      updateData.convertedAt = admin.firestore.FieldValue.serverTimestamp();
-      updateData.processingTime = processingTime || 0;
-    }
-    
-    if (status === "failed" && error) {
-      updateData.conversionError = error;
-    }
-    
-    await fileRef.update(updateData as {[key: string]: any});
+    await fileRef.update(updateData);
     logger.info("Firestore updated", { fileId, status, userId });
     
   } catch (error) {

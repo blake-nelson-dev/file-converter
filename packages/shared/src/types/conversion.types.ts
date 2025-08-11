@@ -37,13 +37,16 @@ export interface UserFile extends ClientFileMetadata {
   readonly id: string;
 }
 
+// Firebase FieldValue type for both client and server SDK compatibility
+export type FirebaseFieldValue = Date | { seconds: number; nanoseconds: number } | object;
+
 // Update payloads for type safety
 export interface ConversionStatusUpdate {
   conversionStatus: ConversionStatusType;
-  lastUpdated: unknown; // Firebase FieldValue - varies by SDK
+  lastUpdated: FirebaseFieldValue;
   conversionProgress?: number;
   convertedPath?: string;
-  convertedAt?: unknown; // Firebase FieldValue
+  convertedAt?: FirebaseFieldValue;
   processingTime?: number;
   conversionError?: string;
 }
