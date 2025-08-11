@@ -29,7 +29,6 @@ A modern, professional file conversion platform built with React, TypeScript, an
 - **Firebase Emulators** for local development
 
 ### Additional Tools
-- **ESLint 9** with TypeScript support
 - **Feature-based architecture** for scalability
 
 ## 🚧 Development Status
@@ -215,7 +214,6 @@ firebase deploy --only storage:rules
 npm run dev        # Start Vite development server
 npm run build      # TypeScript check + production build
 npm run preview    # Preview production build locally
-npm run lint       # Run ESLint
 
 # Firebase
 firebase emulators:start                          # Start all emulators
