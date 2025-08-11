@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './contexts/AuthContext'
 import Dashboard from './features/dashboard/pages/Dashboard'
+import Conversions from './features/conversion/pages/Conversions'
 import About from './features/about/pages/About'
 import SignIn from './features/auth/pages/SignIn'
 import SignUp from './features/auth/pages/SignUp'
@@ -33,6 +34,11 @@ function App() {
               </PublicRoute>
             } />
             <Route path="/about" element={<About />} />
+            <Route path="/conversions" element={
+              <ProtectedRoute>
+                <Conversions />
+              </ProtectedRoute>
+            } />
             <Route path="/" element={
               <ProtectedRoute>
                 <Dashboard />

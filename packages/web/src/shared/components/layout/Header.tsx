@@ -28,6 +28,9 @@ const Header: React.FC = () => {
           
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
+            {currentUser && (
+              <Link to="/conversions" className="text-gray-600 hover:text-gray-900 transition-colors">My Files</Link>
+            )}
             <Link to="/about" className="text-gray-600 hover:text-gray-900 transition-colors">About</Link>
             
             {currentUser && (
@@ -85,6 +88,9 @@ const Header: React.FC = () => {
       {isMobileMenuOpen && (
         <div className="md:hidden">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+            {currentUser && (
+              <Link to="/conversions" className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">My Files</Link>
+            )}
             <Link to="/about" className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">About</Link>
             
             {currentUser && (
