@@ -1,11 +1,12 @@
-# Privacy Policy for ConvertStudio (Not official. Still needs updated for production)
+# Privacy Policy for ConvertStudio
 
-**Last Updated**: August 5, 2025  
-**Effective Date**: August 5, 2025
+**Last Updated**: August 11, 2025  
+**Effective Date**: Upon Production Launch (Estimated: August 17, 2025)  
+**Status**: Draft - Pending Legal Review
 
 ## Overview
 
-ConvertStudio ("we", "our", or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, and safeguard your information when you use our file conversion service at [your-domain.com] (the "Service").
+ConvertStudio ("we", "our", or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, and safeguard your information when you use our file conversion service (the "Service").
 
 ## Information We Collect
 
@@ -155,9 +156,9 @@ We may update this Privacy Policy. Changes will be posted with a new "Last Updat
 
 For privacy concerns or data requests:
 
-- Email: privacy@[your-domain].com
-- Data Protection Officer: [Your Name]
-- Address: [Your Business Address]
+- Email: [To be determined]
+- Data Protection Officer: [To be appointed]
+- Website: [Production URL pending]
 
 ## Legal Basis for Processing
 

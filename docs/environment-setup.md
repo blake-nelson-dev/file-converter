@@ -1,5 +1,8 @@
 # Environment Setup Guide
 
+**Last Updated**: August 11, 2025  
+**Status**: Current - Monorepo Configuration
+
 ## Environment Variables
 
 The monorepo requires environment variables for Firebase configuration and feature flags.

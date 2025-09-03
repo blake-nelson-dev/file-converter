@@ -243,3 +243,5 @@ See [LICENSE](LICENSE) file for details.
 ---
 
 **ConvertStudio** - Transform your files with confidence 🚀
+
+*Last Updated: August 11, 2025*
