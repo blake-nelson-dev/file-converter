@@ -14,8 +14,7 @@
     "deploy:functions": "turbo run deploy --filter=functions",
     "deploy:web": "turbo run deploy --filter=web",
     "clean": "turbo run clean && rm -rf node_modules",
-    "setup": "npm install && npm run build",
-    "verify": "node tools/scripts/verify-monorepo.js"
+    "setup": "npm install && npm run build"
   },
   "devDependencies": {
     "turbo": "^2.0.0"
