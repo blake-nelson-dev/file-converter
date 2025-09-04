@@ -1,5 +1,5 @@
 import React from 'react';
-import Button from './Button';
+import { Button } from './Button';
 
 export type SortOrder = 'asc' | 'desc';
 
@@ -17,7 +17,7 @@ const SortButton: React.FC<SortButtonProps> = ({
   return (
     <Button
       variant="outline"
-      size="medium"
+      size="default"
       onClick={onToggle}
       className={`px-3 py-2 ${className}`}
       title={`Sort ${sortOrder === 'asc' ? 'Descending' : 'Ascending'}`}

@@ -56,9 +56,16 @@ firebase login
 
 ### Local Development
 
+#### Option 1: Single Command (Recommended)
+```bash
+# Start both Firebase emulators and frontend together
+npm run dev:full
+```
+
+#### Option 2: Separate Commands
 ```bash
 # 1. Start Firebase emulators (in one terminal)
-firebase emulators:start
+npm run emulators
 
 # 2. Start Vite development server (in another terminal)
 npm run dev
@@ -199,18 +206,22 @@ firebase deploy --only storage:rules
 ## 🧪 Available Scripts
 
 ```bash
-# Frontend
-npm run dev        # Start Vite development server
-npm run build      # TypeScript check + production build
-npm run preview    # Preview production build locally
+# Development
+npm run dev:full   # Start both Firebase emulators and frontend (recommended)
+npm run dev        # Start Vite development server only
+npm run emulators  # Start Firebase emulators only
 
-# Firebase
-firebase emulators:start                          # Start all emulators
-firebase emulators:start --only functions,firestore  # Specific emulators
-firebase deploy --only functions                 # Deploy functions
-firebase deploy --only firestore:rules           # Deploy database rules
+# Building & Testing
+npm run build      # Build all packages
+npm run typecheck  # TypeScript check across all packages
+npm run test       # Run tests (when implemented)
 
-# Functions (from /functions directory)
+# Deployment
+npm run deploy:functions  # Deploy functions only
+npm run deploy:web       # Deploy web only
+firebase deploy          # Deploy all Firebase services
+
+# Functions (from /packages/functions directory)
 npm run build      # Build TypeScript
 npm run serve      # Serve functions locally
 npm run shell      # Interactive functions shell

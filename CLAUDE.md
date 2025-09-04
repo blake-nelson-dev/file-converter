@@ -37,15 +37,18 @@ The application uses **Firebase** as the backend (Auth, Firestore, Storage, Func
 
 ```bash
 # Root level - uses Turbo for orchestration
-npm run dev          # Start all packages in development mode
+npm run dev:full     # Start Firebase emulators + frontend (RECOMMENDED)
+npm run dev          # Start frontend only (Vite dev server)
+npm run emulators    # Start Firebase emulators only
 npm run build        # Build all packages
 npm run typecheck    # Run TypeScript checks across all packages
 npm run test         # Run tests (when implemented)
 npm run setup        # Install dependencies and build all packages
 
-# Firebase development (run in root)
-firebase emulators:start  # Start all Firebase emulators
-firebase deploy          # Deploy all services to production
+# Deployment
+npm run deploy:functions  # Deploy functions only
+npm run deploy:web       # Deploy web only
+firebase deploy          # Deploy all Firebase services
 
 # Package-specific commands
 cd packages/web && npm run dev      # Web frontend only
@@ -68,3 +71,5 @@ cd packages/functions && npm run shell  # Interactive functions shell
 - **TypeScript strict mode** enabled across all packages
 - **No linting configured** - removed from project
 - **Deployment**: Web on Vercel, Functions on Firebase
+- **shadcn/ui**: UI components located in `packages/web/src/shared/components/shadcn/`
+- **Start development**: Use `npm run dev:full` for complete dev environment

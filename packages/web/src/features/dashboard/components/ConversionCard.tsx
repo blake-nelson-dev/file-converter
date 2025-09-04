@@ -24,7 +24,7 @@ const ConversionCard: React.FC<ConversionCardProps> = ({
       <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">{title}</h3>
       <p className="text-sm sm:text-base text-gray-600 mb-4">{description}</p>
       <Button 
-        variant="primary" 
+        variant="default" 
         className="w-full"
         onClick={onButtonClick}
       >

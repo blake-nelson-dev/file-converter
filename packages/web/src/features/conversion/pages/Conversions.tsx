@@ -254,7 +254,7 @@ const Conversions: React.FC = () => {
             }
             action={
               files.length === 0 ? (
-                <Button variant="primary" onClick={() => window.location.href = '/'}>
+                <Button variant="default" onClick={() => window.location.href = '/'}>
                   Upload Files
                 </Button>
               ) : null
@@ -316,7 +316,7 @@ const Conversions: React.FC = () => {
                   <div className="flex items-center gap-2 ml-4">
                     <Button
                       variant="secondary"
-                      size="small"
+                      size="sm"
                       onClick={() => handleDownloadOriginal(file)}
                       className="inline-flex items-center"
                       title="Download original file"
@@ -338,7 +338,7 @@ const Conversions: React.FC = () => {
 
                     <Button
                       variant="outline"
-                      size="small"
+                      size="sm"
                       onClick={() => handleDeleteFile(file.id)}
                       className="inline-flex items-center text-red-600 border-red-200 hover:bg-red-50"
                       title="Delete file"

@@ -145,7 +145,7 @@ const About: React.FC = () => {
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button 
-              variant="primary" 
+              variant="default" 
               onClick={() => window.location.href = 'mailto:blakenelson.dev@gmail.com'}
               className="px-6 py-3"
             >

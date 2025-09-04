@@ -9,6 +9,8 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev --parallel",
+    "dev:full": "concurrently \"firebase emulators:start --config packages/config/firebase.json\" \"turbo run dev --parallel\"",
+    "emulators": "firebase emulators:start --config packages/config/firebase.json",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
     "deploy:functions": "turbo run deploy --filter=functions",
@@ -17,6 +19,7 @@
     "setup": "npm install && npm run build"
   },
   "devDependencies": {
+    "concurrently": "^9.2.1",
     "turbo": "^2.0.0"
   },
   "engines": {
